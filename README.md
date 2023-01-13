@@ -25,16 +25,16 @@ A small set of ruby utilities for working with CSV files packaged as a gem with 
 
 ## Todo
 
-- [ ] Create a separate repo as a gem using bundler
-- [ ] Move existing scripts to the new repo
-- [ ] Use ruby 3.x?
-- [ ] Use Thor?
+- [x] Create a separate repo as a gem using bundler
+- [x] Move existing scripts to the new repo
+- [x] Use ruby 3.x?
+- [x] Add README with description, project plan
 - [ ] Remove current ARGF behavior that expects a list of files
 - [ ] Remove current output file specification?
-- [ ] Create `lib/csv-util`
+- [x] Create `lib/csv-util`
+- [ ] Use Thor?
   - [ ] Add CLI base
   - [ ] Add shared function for determining input type: list of CSVs or piped CSV data
-- [ ] Add README with description, project plan
 
 
 
