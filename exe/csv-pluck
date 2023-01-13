@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+require 'csv'
+require 'optparse'
+
+##
+# Extract the contents of a column or columns from the input csv
+#
+
+options = {}
+options[:separator] = ','
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename(__FILE__)} CSV_FILE COLUMN [COLUMN ...]"
+
+  opts.on '-s', '--separator SEP', 'Separator for mulitple columns' do |sep|
+    options[:separator] = sep
+  end
+
+  opts.on '-l' , '--list-headers', 'List the headers in CSV and quit' do 
+    options[:list_headers] = true
+  end
+
+  opts.on '-d', '--headers', 'Print column headers' do 
+    options[:headers] = true
+  end
+
+  opts.on '-h', '--help', 'Prints this help' do
+    puts opts
+    exit
+  end
+end.parse!
+
+csv_file = ARGV.shift
+abort "Please provide a CSV file" unless csv_file
+abort "Can't find CSV file" unless File.exist? csv_file
+
+headers = CSV.open(csv_file, 'r') { |csv| csv.first }
+
+if options[:list_headers]
+  puts "Headers in #{csv_file}:"
+  puts "---"
+  puts headers 
+  exit
+end
+
+columns  = ARGV.dup
+abort "Please provide a column name" unless columns.size > 0
+
+missing = columns.reject { |column| headers.include? column }
+unless missing.empty?
+  abort "Can't find column(s) #{missing.join ', '} in #{headers.join(', ')}" 
+end
+
+data = []
+
+CSV $stdout, headers: options[:headers], col_sep: options[:separator] do |csv|
+  csv << columns if options[:headers]
+  CSV.foreach csv_file, headers: true do |row|
+    csv << (columns.map { |c| row[c] })
+  end
+end
+
+
+
