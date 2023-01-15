@@ -12,7 +12,7 @@ RSpec.describe 'csv-cat', :type => :aruba do
     # copy fixture files
     before { copy '%/abc.csv', '.'}
     before { copy '%/bcd.csv', '.'}
-    let(:output) { read('%/abcbcd.csv').join($/) }
+    let(:output) { read('%/csv-cat/abcbcd.csv').join($/) }
     before { run_command 'csv-cat abc.csv bcd.csv' }
 
     it { expect(last_command_started).to have_output output }
@@ -22,7 +22,7 @@ RSpec.describe 'csv-cat', :type => :aruba do
     # copy fixture files
     before { copy '%/abc.csv', '.'}
     before { copy '%/bcd.csv', '.'}
-    let(:output) { read('%/abcbcd-uniq.csv').join($/) }
+    let(:output) { read('%/csv-cat/abcbcd-uniq.csv').join($/) }
     before { run_command 'csv-cat --uniq abc.csv bcd.csv' }
 
     it { expect(last_command_started).to have_output output }
@@ -32,7 +32,7 @@ RSpec.describe 'csv-cat', :type => :aruba do
     # copy fixture files
     before { copy '%/abc.csv', '.'}
     before { copy '%/bcd.csv', '.'}
-    let(:output) { read('%/abcbcd-sort.csv').join($/) }
+    let(:output) { read('%/csv-cat/abcbcd-sort.csv').join($/) }
     before { run_command 'csv-cat --sort abc.csv bcd.csv' }
 
     it { expect(last_command_started).to have_output output }
@@ -42,7 +42,7 @@ RSpec.describe 'csv-cat', :type => :aruba do
     # copy fixture files
     before { copy '%/abc.csv', '.'}
     before { copy '%/bcd.csv', '.'}
-    let(:output) { read('%/abcbcd-sort-uniq.csv').join($/) }
+    let(:output) { read('%/csv-cat/abcbcd-sort-uniq.csv').join($/) }
     before { run_command 'csv-cat --sort --uniq abc.csv bcd.csv' }
 
     it { expect(last_command_started).to have_output output }
@@ -53,7 +53,7 @@ RSpec.describe 'csv-cat', :type => :aruba do
     before { copy '%/abc.csv', '.'}
     before { copy '%/bcd.csv', '.'}
     before { copy '%/efg.csv', '.'}
-    let(:output) { read('%/abcbcdefg.csv').join($/) }
+    let(:output) { read('%/csv-cat/abcbcdefg.csv').join($/) }
     before { run_command 'csv-cat abc.csv bcd.csv efg.csv' }
 
     it { expect(last_command_started).to have_output output }
