@@ -12,7 +12,7 @@ RSpec.describe 'csv-filter', :type => :aruba do
     before { copy '%/csv-filter/unfiltered.csv', '.' }
     let(:output) { read('%/csv-filter/filtered-text.csv').join($/) }
 
-    before { run_command 'csv-filter --column f --text=fig unfiltered.csv' }
+    before { run_command 'csv-filter --column second_col --text=fig unfiltered.csv' }
 
     it { expect(last_command_started).to have_output output}
   end
@@ -21,7 +21,7 @@ RSpec.describe 'csv-filter', :type => :aruba do
     before { copy '%/csv-filter/unfiltered.csv', '.' }
     let(:output) { read('%/csv-filter/filtered-regex.csv').join($/) }
 
-    before { run_command 'csv-filter --column e --regex="^.*ea" unfiltered.csv' }
+    before { run_command 'csv-filter --column first_col --regex="^.*ea" unfiltered.csv' }
 
     it { expect(last_command_started).to have_output output}
   end
