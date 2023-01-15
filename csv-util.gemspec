@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   spec.add_dependency 'thor', '~> 1.2.1'
   spec.add_development_dependency 'aruba', '~> 2.1.0'
+  spec.add_development_dependency 'pry', '~> 0.14.1'
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
