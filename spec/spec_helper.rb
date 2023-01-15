@@ -13,4 +13,10 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  Aruba.configure do |config|
+    # config.fixtures_directories = ["#{__dir__}/fixtures"]
+  end
 end
+
+
