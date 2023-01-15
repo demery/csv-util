@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "util/version"
+require_relative "csvutil/version"
 
 module CSVUtil
   class Error < StandardError; end
-
-
 end

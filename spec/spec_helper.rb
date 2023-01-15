@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'csv/util'
 require 'aruba/rspec'
+
+require 'csvutil'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

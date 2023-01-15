@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lib/csv/util/version'
+require_relative 'lib/csvutil/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'csv-util'
