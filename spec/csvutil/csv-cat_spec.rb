@@ -10,8 +10,8 @@ RSpec.describe 'csv-cat', :type => :aruba do
 
   context 'when concatting two csvs' do
     # copy fixture files
-    before { copy '%/abc.csv', '.'}
-    before { copy '%/bcd.csv', '.'}
+    before { copy '%/csv-cat/abc.csv', '.'}
+    before { copy '%/csv-cat/bcd.csv', '.'}
     let(:output) { read('%/csv-cat/abcbcd.csv').join($/) }
     before { run_command 'csv-cat abc.csv bcd.csv' }
 
@@ -20,8 +20,8 @@ RSpec.describe 'csv-cat', :type => :aruba do
 
   context 'when concatting two csvs with --uniq' do
     # copy fixture files
-    before { copy '%/abc.csv', '.'}
-    before { copy '%/bcd.csv', '.'}
+    before { copy '%/csv-cat/abc.csv', '.'}
+    before { copy '%/csv-cat/bcd.csv', '.'}
     let(:output) { read('%/csv-cat/abcbcd-uniq.csv').join($/) }
     before { run_command 'csv-cat --uniq abc.csv bcd.csv' }
 
@@ -30,8 +30,8 @@ RSpec.describe 'csv-cat', :type => :aruba do
 
   context 'when concatting two csvs with --sort' do
     # copy fixture files
-    before { copy '%/abc.csv', '.'}
-    before { copy '%/bcd.csv', '.'}
+    before { copy '%/csv-cat/abc.csv', '.'}
+    before { copy '%/csv-cat/bcd.csv', '.'}
     let(:output) { read('%/csv-cat/abcbcd-sort.csv').join($/) }
     before { run_command 'csv-cat --sort abc.csv bcd.csv' }
 
@@ -40,8 +40,8 @@ RSpec.describe 'csv-cat', :type => :aruba do
 
   context 'when concatting two csvs with --sort --uniq' do
     # copy fixture files
-    before { copy '%/abc.csv', '.'}
-    before { copy '%/bcd.csv', '.'}
+    before { copy '%/csv-cat/abc.csv', '.'}
+    before { copy '%/csv-cat/bcd.csv', '.'}
     let(:output) { read('%/csv-cat/abcbcd-sort-uniq.csv').join($/) }
     before { run_command 'csv-cat --sort --uniq abc.csv bcd.csv' }
 
@@ -50,9 +50,9 @@ RSpec.describe 'csv-cat', :type => :aruba do
 
   context 'when concatting three csvs' do
     # copy fixture files
-    before { copy '%/abc.csv', '.'}
-    before { copy '%/bcd.csv', '.'}
-    before { copy '%/efg.csv', '.'}
+    before { copy '%/csv-cat/abc.csv', '.'}
+    before { copy '%/csv-cat/bcd.csv', '.'}
+    before { copy '%/csv-cat/efg.csv', '.'}
     let(:output) { read('%/csv-cat/abcbcdefg.csv').join($/) }
     before { run_command 'csv-cat abc.csv bcd.csv efg.csv' }
 
