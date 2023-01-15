@@ -91,6 +91,7 @@ Thus yielding the wrong column-value correspondences: `{ e: '', f: 3, g: 4, a: 5
 - [ ] `csv-fiter`-specific changes
   - [ ] Accept file from `ARGV`
   - [ ] Access piped CSV using `ARGF`
+  - [ ] Add `-w, --match-whole-value`
 - [ ] `csv-pluck`-specific changes
   - [ ] Accept file from `ARGV`
   - [ ] Access piped CSV using `ARGF`
