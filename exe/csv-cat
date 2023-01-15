@@ -26,27 +26,16 @@ NA
 
 EOF
 
-  # directory
-  out_help = "The output file [default STDOUT]"
-  opts.on('-o file', '--outfile=FILE', out_help) do |path|
-    options[:out_file] = path
-  end
-
   # sort
   sort_help = "Sort combined records by first item"
   opts.on '-s', '--sort', sort_help do |sort|
     options[:sort] = sort
   end
 
+  # uniq
   uniq_help = 'Return only uniq values'
   opts.on '-u', '--uniq', uniq_help do |uniq|
     options[:uniq] = uniq
-  end
-
-  # verbose
-  verb_help = "Print full error messages"
-  opts.on('-v', '--verbose', TrueClass, verb_help) do |verbose|
-    options[:verbose] = verbose
   end
 
   help_help = <<~EOF
@@ -66,7 +55,13 @@ csvs = ARGV.dup
 # get the unique headers
 header = csvs.flat_map { |csv| CSV.readlines(csv).first }.uniq
 
-csv_io = StringIO.new
+def get_csv_io opts
+  return StringIO.new if opts[:sort]
+  return StringIO.new if opts[:uniq]
+  STDOUT.dup
+end
+
+csv_io = get_csv_io options
 
 CSV csv_io, headers: true do |csv|
   csv << header
@@ -77,8 +72,9 @@ CSV csv_io, headers: true do |csv|
   end
 end
 
-csv_io.rewind
+exit unless csv_io.instance_of? StringIO
 
+csv_io.rewind
 lines = csv_io.readlines
 head = lines.shift
 
@@ -87,9 +83,4 @@ lines.uniq! if options[:uniq]
 
 lines.unshift head
 
-if options[:out_file]
-  File.open(options[:out_file], 'w+') { |f| f.puts lines }
-  STDERR.puts "Wrote #{options[:out_file]}"
-else
-  STDOUT.puts lines
-end
+STDOUT.puts lines
