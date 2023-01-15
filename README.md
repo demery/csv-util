@@ -81,12 +81,16 @@ Thus yielding the wrong column-value correspondences: `{ e: '', f: 3, g: 4, a: 5
 - [x] Move existing scripts to the new repo
 - [x] Use ruby 3.x?
 - [x] Add README with description, project plan
-- [ ] Remove current ARGF behavior that expects a list of files
-- [ ] Remove current output file specification?
 - [x] Create `lib/csv-util`
-- [ ] Use Thor?
-  - [ ] Add CLI base
-  - [ ] Add shared function for determining input type: list of CSVs or piped CSV data
-
-
-
+- [ ] ~~Use Thor?~~
+  - [ ] ~~Add CLI base~~
+- [ ] Make behavior consistent across scripts: `csv-cat`, `csv-filter`, `csv-pluck`
+- [ ] `csv-cat`-specific changes
+  - [ ] Accept file list as `ARGV`
+  - [ ] Accept file list as `ARGF`
+- [ ] `csv-fiter`-specific changes
+  - [ ] Accept file from `ARGV`
+  - [ ] Access piped CSV using `ARGF`
+- [ ] `csv-pluck`-specific changes
+  - [ ] Accept file from `ARGV`
+  - [ ] Access piped CSV using `ARGF`
