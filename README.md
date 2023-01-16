@@ -13,8 +13,60 @@ A small set of ruby utilities for working with CSV files packaged as a gem with 
 ### Maybe also
 
 - `cvs-merge` - join two CSVs based on a key column
-  - question: when there are other shared columns, do you prefer one CVS's column values, do you represent all columns
+  - Question: when there are other shared columns, do you prefer one CVS's column values?, do you represent all columns?
   - Question: what about non-matching rows? Are they discarded or added to the end?
+- `csv-paste` - csv version of `paste` command, filling blank column values in joined files
+  - Question: If the `paste` command does all these things, is this worth doing?
+    - Not everyone knows `paste`.
+    - This completes the functions of the suite.
+    - If these functions are turned into a library, an in-library `paste` function could be useful.
+
+
+#### An excursus on `paste` vs the proposed `csv-paste`
+
+Note that `paste` does not fill blank columns with commas (`,`s) to maintain column header correspondence in its output.
+
+Given `abc.csv`:
+
+```csv
+a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5
+```
+
+And `efg.csv`:
+
+```csv
+e,f,g
+egg,fig,grape
+elbow,foot,gut
+easel,floor,girder
+```
+
+The desired result of `csv-paste efg.csv abc.csv` would be:
+
+```csv
+e,f,g,a,b,c
+egg,fig,grape,5,6,7
+elbow,foot,gut,3,4,5
+easel,floor,girder,1,2,3
+,,,3,4,5
+```
+
+Thus maintaining the column-value alignemnt in the last row: `{ e: '', f, '', g: '', a: 3, b: 4, c: 5 }`. The `paste` command does not do this:
+
+```csv
+$ paste -d, efg.csv abc.csv
+e,f,g,a,b,c
+egg,fig,grape,5,6,7
+elbow,foot,gut,3,4,5
+easel,floor,girder,1,2,3
+,3,4,5
+```
+
+Thus yielding the wrong column-value correspondences: `{ e: '', f: 3, g: 4, a: 5, b: '', c: '' }`
 
 ## Features of all scripts
 
@@ -29,12 +81,17 @@ A small set of ruby utilities for working with CSV files packaged as a gem with 
 - [x] Move existing scripts to the new repo
 - [x] Use ruby 3.x?
 - [x] Add README with description, project plan
-- [ ] Remove current ARGF behavior that expects a list of files
-- [ ] Remove current output file specification?
 - [x] Create `lib/csv-util`
-- [ ] Use Thor?
-  - [ ] Add CLI base
-  - [ ] Add shared function for determining input type: list of CSVs or piped CSV data
-
-
-
+- [ ] ~~Use Thor?~~
+  - [ ] ~~Add CLI base~~
+- [ ] Make behavior consistent across scripts: `csv-cat`, `csv-filter`, `csv-pluck`
+- [ ] `csv-cat`-specific changes
+  - [ ] Accept file list as `ARGV`
+  - [ ] Accept file list as `ARGF`
+- [ ] `csv-fiter`-specific changes
+  - [ ] Accept file from `ARGV`
+  - [ ] Access piped CSV using `ARGF`
+  - [ ] Add `-w, --match-whole-value`
+- [ ] `csv-pluck`-specific changes
+  - [ ] Accept file from `ARGV`
+  - [ ] Access piped CSV using `ARGF`

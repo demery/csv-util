@@ -3,23 +3,28 @@
 require 'csv'
 require 'optionparser'
 
-options = {
-  out_file: 'output.csv'
-}
+options = { }
+
 parser = OptionParser.new do |opts|
 
   opts.banner = <<EOF
 Usage: #{File.basename __FILE__} [options] CSV CSV [...]
 
-Concatenate CSVs.
+Concatenate two or more CSVs. CSVs must have headers, but the headers don't
+have to match. Headers of output CSV will a union of unique input CSV headers.
+Header uniqueness is case sensitve.
+
+NB: Not tested for empty headers:
+
+    name,address,,city,state
+
+Or for non-unique headers in the same CSV; e.g.,
+
+    name,address,city,state,name
+
+NA
 
 EOF
-
-  # directory
-  out_help = "The output file [default 'output.csv']"
-  opts.on('-o file', '--outfile=FILE', out_help) do |path|
-    options[:out_file] = path
-  end
 
   # sort
   sort_help = "Sort combined records by first item"
@@ -27,15 +32,10 @@ EOF
     options[:sort] = sort
   end
 
+  # uniq
   uniq_help = 'Return only uniq values'
   opts.on '-u', '--uniq', uniq_help do |uniq|
     options[:uniq] = uniq
-  end
-
-  # verbose
-  verb_help = "Print full error messages"
-  opts.on('-v', '--verbose', TrueClass, verb_help) do |verbose|
-    options[:verbose] = verbose
   end
 
   help_help = <<~EOF
@@ -52,21 +52,35 @@ parser.parse!
 
 csvs = ARGV.dup
 
+# get the unique headers
 header = csvs.flat_map { |csv| CSV.readlines(csv).first }.uniq
 
-data = []
-csvs.each do |in_file|
-  data += CSV.readlines(in_file)[1..-1]
+def get_csv_io opts
+  return StringIO.new if opts[:sort]
+  return StringIO.new if opts[:uniq]
+  STDOUT.dup
 end
 
-data.sort_by! &:first if options[:sort]
-data.uniq! &:join     if options[:uniq]
+csv_io = get_csv_io options
 
-CSV.open options[:out_file], 'wb', headers: true do |csv|
+CSV csv_io, headers: true do |csv|
   csv << header
-  data.each do |row|
-    csv << row
+  csvs.each do |source|
+    CSV.foreach source, headers: true do |row|
+      csv << row.to_h # hash for header matching
+    end
   end
 end
 
-puts "Wrote: #{options[:out_file]}"
+exit unless csv_io.instance_of? StringIO
+
+csv_io.rewind
+lines = csv_io.readlines
+head = lines.shift
+
+lines.sort! if options[:sort]
+lines.uniq! if options[:uniq]
+
+lines.unshift head
+
+STDOUT.puts lines
