@@ -3,9 +3,11 @@
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 fixtures=${script_dir}/fixtures/csv-cat
 
+
 export PATH=${script_dir}/../exe:$PATH
 
-tmpdir=${TMPDIR:-/tmp}
+tmpdir=${TMPDIR:-/tmp}/$$
+
 
 test_concat_two_csvs() {
   expected=$(cat ${fixtures}/abcbcd.csv)
@@ -53,4 +55,24 @@ test_pipe_two_csvs() {
   actual=$(ls ${fixtures}/abc.csv ${fixtures}/bcd.csv | csv-cat)
 
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_outfile_flag() {
+  outfile=${tmpdir}/abcbcd.csv
+  csv-cat -o $outfile ${fixtures}/abc.csv ${fixtures}/bcd.csv >/dev/null 2>&1
+  assert "test -e ${outfile}"
+}
+
+
+setup_suite() {
+  mkdir ${tmpdir}
+}
+
+teardown_suite() {
+  rm_opts=-rf
+  if [[ -n ${CSVUTIL_VERBOSE} ]]
+  then
+    rm_opts="${rm_opts} -v"
+  fi
+  rm ${rm_opts} ${tmpdir}
 }
