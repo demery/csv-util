@@ -3,7 +3,9 @@
 require 'csv'
 require 'optionparser'
 
-options = { }
+options = {
+
+ }
 
 parser = OptionParser.new do |opts|
 
@@ -22,8 +24,6 @@ Or for non-unique headers in the same CSV; e.g.,
 
     name,address,city,state,name
 
-NA
-
 EOF
 
   # sort
@@ -38,6 +38,12 @@ EOF
     options[:uniq] = uniq
   end
 
+  # outfile
+  out_help = "Specify an output filename (default: stdout)"
+  opts.on '-o', '--outfile OUTFILE', out_help do |outfile|
+    options[:outfile] = outfile
+  end
+
   help_help = <<~EOF
     Prints this help
 
@@ -50,20 +56,25 @@ end
 
 parser.parse!
 
-csvs = ARGV.dup
+
+input = $stdin.tty? ? ARGV.dup : ARGF
+csvs = input.map &:chomp
 
 # get the unique headers
 header = csvs.flat_map { |csv| CSV.readlines(csv).first }.uniq
 
-def get_csv_io opts
+def get_csv_output opts
   return StringIO.new if opts[:sort]
   return StringIO.new if opts[:uniq]
+  return File.open opts[:outfile], 'w' if opts[:outfile]
+
   STDOUT.dup
 end
 
-csv_io = get_csv_io options
+output = get_csv_output options
 
-CSV csv_io, headers: true do |csv|
+
+CSV output, headers: true do |csv|
   csv << header
   csvs.each do |source|
     CSV.foreach source, headers: true do |row|
@@ -72,10 +83,21 @@ CSV csv_io, headers: true do |csv|
   end
 end
 
-exit unless csv_io.instance_of? StringIO
 
-csv_io.rewind
-lines = csv_io.readlines
+case output
+when File
+  output.close
+  $stderr.puts "Wrote: #{output.path}"
+  exit
+when StringIO
+  # do nothing
+else
+  # we must have written to stdout; quit
+  exit
+end
+
+output.rewind
+lines = output.readlines
 head = lines.shift
 
 lines.sort! if options[:sort]
@@ -83,4 +105,8 @@ lines.uniq! if options[:uniq]
 
 lines.unshift head
 
-STDOUT.puts lines
+if options[:outfile]
+  File.new(options[:outfile], 'w"') { |f| f.puts lines }
+else
+  $stdout.puts lines
+end
