@@ -1,6 +1,5 @@
 # CSV Util
 
-
 A small set of ruby utilities for working with CSV files packaged as a gem with executables and a library of functions.
 
 ## Functions
@@ -74,24 +73,3 @@ Thus yielding the wrong column-value correspondences: `{ e: '', f: 3, g: 4, a: 5
   - **Exception**: `csv-cat` can accept only a list of  CSVs
 - Output result CSV to STDOUT
   - Potential optional behavior: allow specification of output file name
-
-## Todo
-
-- [x] Create a separate repo as a gem using bundler
-- [x] Move existing scripts to the new repo
-- [x] Use ruby 3.x?
-- [x] Add README with description, project plan
-- [x] Create `lib/csv-util`
-- [ ] ~~Use Thor?~~
-  - [ ] ~~Add CLI base~~
-- [ ] Make behavior consistent across scripts: `csv-cat`, `csv-filter`, `csv-pluck`
-- [ ] `csv-cat`-specific changes
-  - [ ] Accept file list as `ARGV`
-  - [ ] Accept file list as `ARGF`
-- [ ] `csv-fiter`-specific changes
-  - [ ] Accept file from `ARGV`
-  - [ ] Access piped CSV using `ARGF`
-  - [ ] Add `-w, --match-whole-value`
-- [ ] `csv-pluck`-specific changes
-  - [ ] Accept file from `ARGV`
-  - [ ] Access piped CSV using `ARGF`
