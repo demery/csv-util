@@ -1,0 +1,133 @@
+#!/usr/bin/env ruby
+
+require 'csv'
+require 'optionparser'
+require_relative '../lib/csvutil'
+
+
+CMD = File.basename __FILE__
+
+########################################################################
+# Methods
+########################################################################
+def print_version
+  puts "#{CMD} #{CSVUtil::VERSION}"
+  exit
+end
+
+options = {}
+parser = OptionParser.new do |opts|
+
+  opts.banner = <<EOF
+Usage: #{File.basename __FILE__} [options] CSV CSV [...]
+
+Return a new version of the CSV with only the specified row
+
+NB: Assumes CSV has headers.
+
+EOF
+
+  # version
+  version_help = "Print #{CMD} and quit"
+  opts.on '-v', '--version', version_help do
+    print_version
+    exit
+  end
+
+  # outfile
+  out_help = "Specify an output filename (default: stdout)"
+  opts.on '-o', '--outfile OUTFILE', out_help do |outfile|
+    options[:outfile] = outfile
+  end
+
+  # findrow
+  findrow_help ="Get the number of the first row matching column=pattern"
+  opts.on '-r', '--find-row "HEADER=PATTERN"', findrow_help do |query|
+    options[:row_query] = query
+  end
+
+  # slice
+  slice_help = "Row number(s) to slice on; e.g., '50', '50,10', '50..60'"
+  opts.on '-s', '--slice SLICE_SPEC', slice_help do |slice_spec|
+    options[:slice_spec] = slice_spec
+  end
+
+  help_help = <<~EOF
+    Prints this help
+
+  EOF
+  opts.on("-h", "--help", help_help) do
+    puts opts
+    exit
+  end
+end
+
+parser.parse!
+
+if $stdin.tty?
+  csv_file = ARGV.shift
+  abort "Please provide a CSV file" unless csv_file
+  abort "Can't find CSV file" unless File.exist? csv_file
+  input = open csv_file
+else
+  input = $stdin
+end
+
+# get the unique headers
+
+def get_csv_output opts
+  return File.open opts[:outfile], 'w' if opts[:outfile]
+
+  STDOUT.dup
+end
+
+output = get_csv_output options
+
+if (query = options[:row_query])
+  raise "Invalid row number query #{query}" unless query =~ %r{\A[^=]+="?.+\z}
+  header, pattern = query.split '=', 2
+  row_num = 0
+  found = false
+  CSV.parse input, headers: true do |row|
+    raise "Unknown header: #{header}" unless row[header]
+    row_num += 1
+    if row[header] =~ %r{#{pattern}}
+      found = true
+      break
+    end
+  end
+
+  if found
+    puts row_num
+    exit 0
+  else
+    $stderr.puts "WARNING: No row found matching #{options[:row_query]}"
+    exit 1
+  end
+end
+
+start = nil
+stop = nil
+spec = options[:slice_spec]
+case spec
+when %r{\A\d+\z}
+  start = Integer(spec)
+when %r{\A\d+,\d+\z}
+  start, count = spec.split(',').map { |i| Integer i }
+  stop = count + start
+when %r{\A\d+\.{2}\d+\z}
+  start, stop = spec.split('..').map { |i| Integer i }
+else
+  raise "Invalid slice specification: '#{spec}'"
+end
+
+row_num = 0
+CSV output, headers: true do |csv|
+  CSV.parse input, headers: true do |row|
+    row_num += 1
+    csv << row.headers if row_num == 1
+    csv << row.to_h if (start..stop).include? row_num
+  end
+end
+
+

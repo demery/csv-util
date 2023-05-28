@@ -5,9 +5,10 @@ A small set of ruby utilities for working with CSV files packaged as a gem with 
 ## Functions
 
 - `csv-filter`- accept an input CSV, a column name and  string or regex to matching that column, returning only matching rows
-- `csv-pluck`- accept an input CSV and a list of columns, returning a new CSV with only the selected columns
+- `csv-cut`- accept an input CSV and a list of columns, returning a new CSV with only the selected columns
 - `csv-cat` - concatenate two or more CSVs returning a new CSV with a Union of the columns from the input CSVs
   -  Potential optional behavior: return a CSV of the intersection of the input CSVs' columns
+- `csv-slice` - accept an input CSV and slice specification and output a new CSV of the specified rows
 
 ### Maybe also
 
