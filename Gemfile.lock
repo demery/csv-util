@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    csv-util (0.2.1)
+    csv-util (0.3.1)
       thor (~> 1.2.1)
 
 GEM
