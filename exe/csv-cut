@@ -2,14 +2,22 @@
 
 require 'csv'
 require 'optparse'
+require_relative '../lib/csvutil'
 
 ##
 # Extract the contents of a column or columns from the input csv
 #
 
+CMD = File.basename __FILE__
+
 ###
 # Methods
 ###
+def print_version
+  puts "#{CMD} #{CSVUtil::VERSION}"
+  exit
+end
+
 def list_headers row
   puts "Headers in input:"
   puts "---"
@@ -35,6 +43,12 @@ options[:separator] = ','
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)} CSV_FILE COLUMN [COLUMN ...]"
 
+  # version
+  version_help = "Print #{CMD} and quit"
+  opts.on '-v', '--version', version_help do
+    options[:version] = true
+  end
+
   opts.on '-s', '--separator SEP', 'Separator for mulitple columns' do |sep|
     options[:separator] = sep
   end
@@ -57,6 +71,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+print_version if options[:version]
 
 ###
 # Select input -- a file argument or a pipe

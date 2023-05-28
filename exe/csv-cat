@@ -2,11 +2,20 @@
 
 require 'csv'
 require 'optionparser'
+require_relative '../lib/csvutil'
 
-options = {
 
- }
+CMD = File.basename __FILE__
 
+########################################################################
+# Methods
+########################################################################
+def print_version
+  puts "#{CMD} #{CSVUtil::VERSION}"
+  exit
+end
+
+options = {}
 parser = OptionParser.new do |opts|
 
   opts.banner = <<EOF
@@ -25,6 +34,12 @@ Or for non-unique headers in the same CSV; e.g.,
     name,address,city,state,name
 
 EOF
+
+  # version
+  version_help = "Print #{CMD} and quit"
+  opts.on '-v', '--version', version_help do
+    options[:version] = true
+  end
 
   # sort
   sort_help = "Sort combined records by first item"
@@ -56,6 +71,7 @@ end
 
 parser.parse!
 
+print_version if options[:version]
 
 input = $stdin.tty? ? ARGV.dup : ARGF
 csvs = input.map &:chomp
