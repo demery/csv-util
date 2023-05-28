@@ -7,6 +7,28 @@ require 'optparse'
 # Extract the contents of a column or columns from the input csv
 #
 
+###
+# Methods
+###
+def list_headers row
+  puts "Headers in input:"
+  puts "---"
+  puts row.to_h.keys
+end
+
+def proces_first_row row:, options:, csv:
+  if options[:list_headers]
+    list_headers row
+    exit
+  end
+  abort "Please provide a column name" unless options[:columns]
+  csv << options[:columns] if options[:headers]
+end
+
+###
+# Parse options
+###
+
 options = {}
 options[:separator] = ','
 
@@ -17,11 +39,15 @@ OptionParser.new do |opts|
     options[:separator] = sep
   end
 
-  opts.on '-l' , '--list-headers', 'List the headers in CSV and quit' do 
+  opts.on '-l' , '--list-headers', 'List the headers in CSV and quit' do
     options[:list_headers] = true
   end
 
-  opts.on '-d', '--headers', 'Print column headers' do 
+  opts.on '-c', '--columns COL1[,COL2[,COL3,..]]', 'Comma separated list of columns to extract' do |columns|
+    options[:columns] = columns.split ','
+  end
+
+  opts.on '-d', '--headers', 'Print column headers' do
     options[:headers] = true
   end
 
@@ -31,35 +57,34 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-csv_file = ARGV.shift
-abort "Please provide a CSV file" unless csv_file
-abort "Can't find CSV file" unless File.exist? csv_file
 
-headers = CSV.open(csv_file, 'r') { |csv| csv.first }
-
-if options[:list_headers]
-  puts "Headers in #{csv_file}:"
-  puts "---"
-  puts headers 
-  exit
+###
+# Select input -- a file argument or a pipe
+##
+# See if there's are any arguments left; otherwise, read from stdin
+if $stdin.tty?
+  csv_file = ARGV.shift
+  abort "Please provide a CSV file" unless csv_file
+  abort "Can't find CSV file" unless File.exist? csv_file
+  input = open csv_file
+else
+  input = $stdin
 end
 
-columns  = ARGV.dup
-abort "Please provide a column name" unless columns.size > 0
 
-missing = columns.reject { |column| headers.include? column }
-unless missing.empty?
-  abort "Can't find column(s) #{missing.join ', '} in #{headers.join(', ')}" 
-end
-
-data = []
-
-CSV $stdout, headers: options[:headers], col_sep: options[:separator] do |csv|
-  csv << columns if options[:headers]
-  CSV.foreach csv_file, headers: true do |row|
-    csv << (columns.map { |c| row[c] })
+###
+# Process the data
+###
+first_row = true
+CSV do |csv|
+  CSV.parse input, headers: true do |row|
+    if first_row
+      proces_first_row row: row, options: options, csv: csv
+      first_row = false
+      next
+    end
+    csv << options[:columns].map { |column| row[column] }
   end
 end
-
 
 
