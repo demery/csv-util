@@ -1,31 +1,17 @@
 #!/usr/bin/env bash
 
-script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-fixtures=${script_dir}/fixtures/csv-cat
+##
+# Test csv-cat functions
+#
+# Instead of files on the file system, use bash process substituion to create
+# named pipes.
+#
+# https://www.gnu.org/software/bash/manual/html_node/Process-Substitution.html
+# https://www.linuxjournal.com/content/using-named-pipes-fifos-bash
+#
 
-
-export PATH=${script_dir}/../exe:$PATH
-
-tmpdir=${TMPDIR:-/tmp}/$$
-
-abc='a,b,c
-5,6,7
-3,4,5
-1,2,3
-3,4,5'
-
-bcd='b,c,d
-bat,cat,fat
-jar,car,tsar
-rug,bug,tug
-jar,car,tsar'
-
-efg='e,f,g
-egg,fig,grape
-elbow,foot,gut
-easel,floor,girder'
-
-abcbcd_concat='a,b,c,d
+test_concat_two_csvs() {
+  expected='a,b,c,d
 5,6,7,
 3,4,5,
 1,2,3,
@@ -35,7 +21,55 @@ abcbcd_concat='a,b,c,d
 ,rug,bug,tug
 ,jar,car,tsar'
 
-abcbcd_sort='a,b,c,d
+  abc='a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5'
+
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
+
+  actual=$(${CSV_CAT} <(echo "${abc}") <(echo "${bcd}"))
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_outfile_flag() {
+  expected='a,b,c,d
+5,6,7,
+3,4,5,
+1,2,3,
+3,4,5,
+,bat,cat,fat
+,jar,car,tsar
+,rug,bug,tug
+,jar,car,tsar'
+
+  abc='a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5'
+
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
+
+  outfile=$(mktemp)
+
+  ${CSV_CAT} -o ${outfile} <(echo "${abc}") <(echo "${bcd}")  >/dev/null 2>&1
+  actual=$(cat ${outfile})
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_concat_two_csvs_sorted() {
+  expected='a,b,c,d
 ,bat,cat,fat
 ,jar,car,tsar
 ,jar,car,tsar
@@ -45,7 +79,65 @@ abcbcd_sort='a,b,c,d
 3,4,5,
 5,6,7,'
 
-abcbcd_uniq='a,b,c,d
+  abc='a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5'
+
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
+
+  actual=$(${CSV_CAT} --sort <(echo "${abc}") <(echo "${bcd}") )
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_pipe_two_csvs() {
+
+  # pipe a list of csv files to csv-cat
+
+  expected='a,b,c,d
+5,6,7,
+3,4,5,
+1,2,3,
+3,4,5,
+,bat,cat,fat
+,jar,car,tsar
+,rug,bug,tug
+,jar,car,tsar'
+
+  # temp csv file 1
+  abc=$(mktemp)
+  cat <<EOF > ${abc}
+a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5
+EOF
+
+  # temp csv file 2
+  bcd=$(mktemp)
+  cat <<EOF > ${bcd}
+b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar
+EOF
+
+  # print the list of file so csv-cat
+  actual=$(printf "${abc}\n${bcd}" | ${CSV_CAT})
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_concat_two_csvs_uniq() {
+expected='a,b,c,d
 5,6,7,
 3,4,5,
 1,2,3,
@@ -53,7 +145,25 @@ abcbcd_uniq='a,b,c,d
 ,jar,car,tsar
 ,rug,bug,tug'
 
-abcbcd_sort_uniq='a,b,c,d
+  abc='a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5'
+
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
+
+  actual=$(${CSV_CAT} --uniq <(echo "${abc}") <(echo "${bcd}") )
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_concat_two_csvs_sort_uniq() {
+  expected='a,b,c,d
 ,bat,cat,fat
 ,jar,car,tsar
 ,rug,bug,tug
@@ -61,7 +171,25 @@ abcbcd_sort_uniq='a,b,c,d
 3,4,5,
 5,6,7,'
 
-abcbcdefg_concat='a,b,c,d,e,f,g
+  abc='a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5'
+
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
+
+  actual=$(${CSV_CAT} --sort --uniq <(echo "${abc}") <(echo "${bcd}") )
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
+test_concat_three_csvs() {
+  expected='a,b,c,d,e,f,g
 5,6,7,,,,
 3,4,5,,,,
 1,2,3,,,,
@@ -74,83 +202,26 @@ abcbcdefg_concat='a,b,c,d,e,f,g
 ,,,,elbow,foot,gut
 ,,,,easel,floor,girder'
 
-outfile=$(mktemp)
+  abc="a,b,c
+5,6,7
+3,4,5
+1,2,3
+3,4,5"
 
-setup() {
-  abc_csv=$(mktemp)
-  echo "${abc}" > ${abc_csv}
+  bcd='b,c,d
+bat,cat,fat
+jar,car,tsar
+rug,bug,tug
+jar,car,tsar'
 
-  bcd_csv=$(mktemp)
-  echo "${bcd}" > ${bcd_csv}
+efg='e,f,g
+egg,fig,grape
+elbow,foot,gut
+easel,floor,girder'
 
-  efg_csv=$(mktemp)
-  echo "${efg}" > ${efg_csv}
-}
-
-test_concat_two_csvs() {
-  expected="${abcbcd_concat}"
-  actual=$(csv-cat ${abc_csv} ${bcd_csv} )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_concat_two_csvs_sorted() {
-  expected="${abcbcd_sort}"
-  actual=$(csv-cat --sort ${abc_csv} ${bcd_csv} )
+  actual=$(${CSV_CAT} <(echo "${abc}") <(echo "${bcd}") <(echo "${efg}") )
 
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
-test_concat_two_csvs_uniq() {
-  expected="${abcbcd_uniq}"
-  actual=$(csv-cat --uniq ${abc_csv} ${bcd_csv} )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_concat_two_csvs_sort_uniq() {
-  expected="${abcbcd_sort_uniq}"
-  actual=$(csv-cat --sort --uniq ${abc_csv} ${bcd_csv} )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_concat_three_csvs() {
-  expected="${abcbcdefg_concat}"
-  actual=$(csv-cat ${abc_csv} ${bcd_csv} ${efg_csv} )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_pipe_two_csvs() {
-  expected="${abcbcd_concat}"
-  file_list=$(mktemp)
-  printf "${abc_csv}\n${bcd_csv}" > ${file_list}
-
-  actual=$(csv-cat < ${file_list})
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_outfile_flag() {
-  expected="${abcbcd_concat}"
-  outfile=${tmpdir}/abcbcd-csv$$
-
-  csv-cat -o ${outfile} ${abc_csv}  ${bcd_csv}  >/dev/null 2>&1
-  actual=$(cat ${outfile})
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-
-setup_suite() {
-  mkdir ${tmpdir}
-}
-
-teardown_suite() {
-  rm_opts=-rf
-  if [[ -n ${CSVUTIL_VERBOSE} ]]
-  then
-    rm_opts="${rm_opts} -v"
-  fi
-  rm ${rm_opts} ${tmpdir}
-}
+CSV_CAT="eval ../exe/csv-cat"
