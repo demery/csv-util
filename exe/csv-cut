@@ -13,10 +13,6 @@ CMD = File.basename __FILE__
 ###
 # Methods
 ###
-def print_version
-  puts "#{CMD} #{CSVUtil::VERSION}"
-  exit
-end
 
 def list_headers row
   puts "Headers in input:"
@@ -41,12 +37,13 @@ options = {}
 options[:separator] = ','
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: #{File.basename(__FILE__)} CSV_FILE COLUMN [COLUMN ...]"
+  opts.banner = "Usage: #{File.basename(__FILE__)} -c col1,col2,col3 CSV_FILE "
 
   # version
   version_help = "Print #{CMD} and quit"
   opts.on '-v', '--version', version_help do
-    options[:version] = true
+    print_version
+    exit
   end
 
   opts.on '-s', '--separator SEP', 'Separator for mulitple columns' do |sep|
@@ -71,12 +68,10 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-print_version if options[:version]
-
 ###
 # Select input -- a file argument or a pipe
 ##
-# See if there's are any arguments left; otherwise, read from stdin
+# See if there are any arguments left; otherwise, read from stdin
 if $stdin.tty?
   csv_file = ARGV.shift
   abort "Please provide a CSV file" unless csv_file
@@ -91,7 +86,7 @@ end
 # Process the data
 ###
 first_row = true
-CSV do |csv|
+CSV col_sep: options[:separator] do |csv|
   CSV.parse input, headers: true do |row|
     if first_row
       proces_first_row row: row, options: options, csv: csv
