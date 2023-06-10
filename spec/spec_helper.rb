@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'aruba/rspec'
-
 require 'csvutil'
 
 RSpec.configure do |config|
