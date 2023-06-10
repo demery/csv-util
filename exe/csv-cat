@@ -12,7 +12,6 @@ CMD = File.basename __FILE__
 ########################################################################
 def print_version
   puts "#{CMD} #{CSVUtil::VERSION}"
-  exit
 end
 
 options = {}
@@ -22,7 +21,12 @@ parser = OptionParser.new do |opts|
 Usage: #{File.basename __FILE__} [options] CSV CSV [...]
 
 Concatenate two or more CSVs. CSVs must have headers, but the headers don't
-have to match. Headers of output CSV will a union of unique input CSV headers.
+have to match. Headers of output CSV will be the unique set of input headers.
+
+    a,b,c  +  c,d,e  =>  a,b,c,d,e
+    1,2,3     3,4,5  =>  1,2,3,,
+                        ,,3,4,5
+
 Header uniqueness is case sensitve.
 
 NB: Not tested for empty headers:
@@ -38,7 +42,8 @@ EOF
   # version
   version_help = "Print #{CMD} and quit"
   opts.on '-v', '--version', version_help do
-    options[:version] = true
+    print_version
+    exit
   end
 
   # sort
@@ -71,8 +76,6 @@ end
 
 parser.parse!
 
-print_version if options[:version]
-
 input = $stdin.tty? ? ARGV.dup : ARGF
 csvs = input.map &:chomp
 
@@ -89,7 +92,6 @@ end
 
 output = get_csv_output options
 
-
 CSV output, headers: true do |csv|
   csv << header
   csvs.each do |source|
@@ -98,7 +100,6 @@ CSV output, headers: true do |csv|
     end
   end
 end
-
 
 case output
 when File
