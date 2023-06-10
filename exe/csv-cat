@@ -2,6 +2,8 @@
 
 require 'csv'
 require 'optionparser'
+require 'tempfile'
+
 require_relative '../lib/csvutil'
 
 
@@ -77,7 +79,18 @@ end
 parser.parse!
 
 input = $stdin.tty? ? ARGV.dup : ARGF
-csvs = input.map &:chomp
+
+csvs = input.map(&:chomp).map { |f|
+  # handle fifos
+  if File::ftype(f) == 'fifo'
+    tf = Tempfile.new
+    tf.puts File.open(f).read
+    tf.close
+    tf.path
+  else
+    f
+  end
+}
 
 # get the unique headers
 header = csvs.flat_map { |csv| CSV.readlines(csv).first }.uniq
