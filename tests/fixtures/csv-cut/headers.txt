@@ -1,5 +1,0 @@
-Headers in input:
----
-first_col
-second_col
-third_col
