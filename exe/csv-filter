@@ -24,7 +24,6 @@ def valid_match? options
   options[:regex_string].nil? ^ options[:text].nil?
 end
 
-
 def match? row, options
   value = row[options[:column]]
   return value == options[:text] unless options[:text].nil?
