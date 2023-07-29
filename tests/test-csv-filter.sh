@@ -22,8 +22,6 @@ egg,fig,grape
 steak,fig,cheese
 cucumber,fig,omelet'
 
-  expected=$(cat ${fixtures}/filtered-text.csv)
-
   actual=$(${CSV_FILTER} --column second_col --text fig <(echo "${unfiltered}")  )
 
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
