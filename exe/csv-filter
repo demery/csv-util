@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'csv'
+require 'tempfile'
 require_relative '../lib/csvutil'
 
 DEFAULT_ENCODING = 'utf-8'
@@ -29,6 +30,10 @@ def match? row, options
   return value == options[:text] unless options[:text].nil?
 
   value =~ options[:regex]
+end
+
+def proces_first_row row:, options:, csv:
+  csv << row.to_h.keys
 end
 
 ########################################################################
@@ -80,26 +85,38 @@ end.parse!
 
 print_version if options[:version]
 
-abort 'Please provide a CSV_FILE' unless ARGV.size == 1
-csv_file = ARGV.shift
 
-abort "Can't find CSV_FILE: '#{csv_file}'" unless File.exist? csv_file
+###
+# Select input -- a file argument or a pipe
+##
+# See if there are any arguments left; otherwise, read from stdin
+if $stdin.tty?
+  csv_file = ARGV.shift
+  abort "Please provide a CSV file" unless csv_file
+  abort "Can't find CSV file" unless File.exist? csv_file
+  input = File.open csv_file
+else
+  input = $stdin
+end
 
 # Handle options
 encoding = options[:encoding] || DEFAULT_ENCODING
 abort 'Provide either a regex or text to match' unless valid_match? options
 abort 'Specify a column to match' unless options[:column]
 
-unless options[:regex_string].nil?
+if options[:regex_string]
   options[:regex] = Regexp.new options[:regex_string], options[:insensitive]
 end
 
-headers = CSV.open(csv_file, 'r') { |csv| csv.first }
 
-CSV headers: true do |out_csv|
-  out_csv << headers
-  CSV.foreach csv_file, headers: true, encoding: "#{encoding}:utf-8" do |row|
-    out_csv << row if match? row, options
+first_row = true
+CSV headers: true do |csv|
+  CSV.parse input, headers: true, encoding: "#{encoding}:utf-8" do |row|
+    if first_row
+      proces_first_row row: row, options: options, csv: csv
+      first_row = false
+    end
+    csv << row if match? row, options
   end
 end
 
