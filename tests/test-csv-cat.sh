@@ -130,7 +130,7 @@ rug,bug,tug
 jar,car,tsar
 EOF
 
-  # print the list of file so csv-cat
+  # print the list of files to csv-cat
   actual=$(printf "${abc}\n${bcd}" | ${CSV_CAT})
 
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
