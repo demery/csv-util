@@ -8,6 +8,19 @@ eager,fickle,giddy
 steak,fig,cheese
 cucumber,fig,omelet'
 
+test_pipe_to_csv_slice() {
+  expected='first_col,second_col,third_col
+elbow,foot,gut
+eager,fickle,giddy
+steak,fig,cheese
+cucumber,fig,omelet'
+
+  # print line 3 and the rest of the CSV
+  actual=$( echo "${input_csv}" |  ${CSV_SLICE} --slice 3 )
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
 test_slice_from_line_number() {
   expected='first_col,second_col,third_col
 elbow,foot,gut

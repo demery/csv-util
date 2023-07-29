@@ -30,4 +30,15 @@ steak,fig,cheese'
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
+test_pipe_to_csv_filter() {
+    expected='first_col,second_col,third_col
+easel,floor,girder
+eager,fickle,giddy
+steak,fig,cheese'
+
+  actual=$(echo "${unfiltered}" | ${CSV_FILTER} --column first_col --regex="^.*ea")
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
+}
+
 CSV_FILTER="eval ../exe/csv-filter"

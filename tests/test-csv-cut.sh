@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-fixtures=${script_dir}/fixtures/csv-cut
-
-export PATH=${script_dir}/../exe:$PATH
-
-tmpdir=${TMPDIR:-/tmp}/$$
-
 source_csv='first_col,second_col,third_col
 easel,floor,girder
 egg,fig,grape
@@ -93,17 +86,18 @@ third_col'
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
-setup_suite() {
-  mkdir ${tmpdir}
-}
+test_pipe_to_csv_cut() {
+    expected='second_col
+floor
+fig
+foot
+fickle
+fig
+fig'
 
-teardown_suite() {
-  rm_opts=-rf
-  if [[ -n ${CSVUTIL_VERBOSE} ]]
-  then
-    rm_opts="${rm_opts} -v"
-  fi
-  rm ${rm_opts} ${tmpdir}
+  actual=$(echo "${source_csv}" | ${CSV_CUT} -c second_col --headers)
+
+  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
 CSV_CUT="eval ../exe/csv-cut"
