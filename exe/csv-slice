@@ -106,7 +106,6 @@ if (query = options[:row_query])
   end
 end
 
-start = nil
 stop = nil
 spec = options[:slice_spec]
 case spec
@@ -125,7 +124,7 @@ row_num = 0
 CSV output, headers: true do |csv|
   CSV.parse input, headers: true do |row|
     row_num += 1
-    csv << row.headers if row_num == 1
+    csv << row.headers if row_num == 0
     csv << row.to_h if (start..stop).include? row_num
   end
 end
