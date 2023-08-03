@@ -41,8 +41,8 @@ EOF
   end
 
   # findrow
-  findrow_help ="Get the number of the first row matching column=pattern"
-  opts.on '-r', '--find-row "HEADER=PATTERN"', findrow_help do |query|
+  matching_row_help ="Get the number of the first row matching column=pattern"
+  opts.on '-r', '--matching-row "HEADER=PATTERN"', matching_row_help do |query|
     options[:row_query] = query
   end
 
@@ -120,13 +120,14 @@ else
   raise "Invalid slice specification: '#{spec}'"
 end
 
-row_num = 0
+# convert to indices
+start -= 1
+stop -= 1 if stop
+
+first_row = true
 CSV output, headers: true do |csv|
-  CSV.parse input, headers: true do |row|
-    row_num += 1
-    csv << row.headers if row_num == 0
-    csv << row.to_h if (start..stop).include? row_num
+  CSV.parse(input, headers: true).each_with_index do |row,index|
+    csv << row.headers if index == 0
+    csv << row.to_h if (start..stop).include? index
   end
 end
-
-
