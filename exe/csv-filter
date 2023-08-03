@@ -26,12 +26,14 @@ end
 
 def match? row, options
   value = row[options[:column]]
-  return value == options[:text] unless options[:text].nil?
+  return value != options[:text]  if options[:text] && options[:reject]
+  return value == options[:text]  if options[:text]
+  return value !~ options[:regex] if options[:reject]
 
   value =~ options[:regex]
 end
 
-def proces_first_row row:, options:, csv:
+def process_first_row row:, options:, csv:
   csv << row.to_h.keys
 end
 
@@ -41,7 +43,13 @@ end
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: csv-filter --column=COLUMN_NAME {--regex|--value}=VALUE CSV_FILE"
+  opts.banner = <<EOF
+Usage: csv-filter --column=COLUMN_NAME {--regex|--text}=VALUE [OPTIONS] CSV_FILE
+
+Output a new CSV matching the filter criteria.
+
+The --reject flag reverses the operation.
+EOF
 
   # version
   version_help = "Print #{CMD} and quit"
@@ -58,7 +66,11 @@ OptionParser.new do |opts|
     options[:regex_string] = regex_string
   end
 
-  opts.on "-i", "--case-insensitive", "Whether match is case-insensitive" do
+  opts.on("-j", "--reject", "Reject all matching rows") do
+    options[:reject] = true
+  end
+
+  opts.on "-i", "--case-insensitive", "Whether regex is case-insensitive" do
     options[:insensitive] = true
   end
 
@@ -112,10 +124,9 @@ first_row = true
 CSV headers: true do |csv|
   CSV.parse input, headers: true, encoding: "#{encoding}:utf-8" do |row|
     if first_row
-      proces_first_row row: row, options: options, csv: csv
+      process_first_row row: row, options: options, csv: csv
       first_row = false
     end
     csv << row if match? row, options
   end
 end
-
