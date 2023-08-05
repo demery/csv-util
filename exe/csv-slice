@@ -2,6 +2,8 @@
 
 require 'csv'
 require 'optionparser'
+require 'fileutils'
+require 'tempfile'
 require_relative '../lib/csvutil'
 
 
@@ -52,6 +54,13 @@ EOF
     options[:slice_spec] = slice_spec
   end
 
+  # split
+  split_help = "Output two CSVs: one of sliced rows and one of the remainder"
+  opts.on '-p', '--split', split_help do
+    options[:split] = true
+    options[:outfile] ||= 'output.csv'
+  end
+
   help_help = <<~EOF
     Prints this help
 
@@ -81,7 +90,7 @@ def get_csv_output opts
   STDOUT.dup
 end
 
-output = get_csv_output options
+
 
 if (query = options[:row_query])
   raise "Invalid row number query #{query}" unless query =~ %r{\A[^=]+="?.+\z}
@@ -120,14 +129,115 @@ else
   raise "Invalid slice specification: '#{spec}'"
 end
 
-# convert to indices
-start -= 1
-stop -= 1 if stop
+=begin
 
-first_row = true
-CSV output, headers: true do |csv|
-  CSV.parse(input, headers: true).each_with_index do |row,index|
-    csv << row.headers if index == 0
-    csv << row.to_h if (start..stop).include? index
+For an array integers for each row skipped by the slice operation,
+output the complement string for a sliced CSV.
+
+A sliced CSV has the string spec for the range of rows sliced from a
+source CSV; e.g., +3-5+ for a slice spec of +3..5+. The complement
+string provides the same information about the rows of the complement
+file; e.g., +1-2\+6-10+ for a source file with 10 rows and a slice
+spec of +3..5+.
+
+@example
+  build_skips_string([1,2,6,7,8,9,10])  # => 1-2+6-10
+
+So, in use:
+
+@example Given a file +source.csv+ with ten rows:
+  $ csv-slice --split --spec 3..5 --outfile output.csv source.csv
+  Wrote: output-slice-3-5.csv, output-complement-1-2+6-10
+
+@param [Array<Integer>] skipped_rows an array Integers of skipped row
+  numbers; e.g., [1, 2, 6, 7, 9, 10]: rows 1 to 2 and 6 to 10 were
+  skipped
+@return [String] the complement string for the provided pairs; e.g.,
+  +1-2\+6-10+; rows 1 to 2 and 6 to 10 were skipped
+=end
+def build_skips_string skipped_rows
+  # scan the input array and create range pairs for sequential skips:
+  #
+  #   [1, 2, 6, 7, 8, 9, 10]
+  #
+  # 1-2 and 6-10 are sequential, generate [[1,2], [6,10]]
+  skipped_rows.reduce([]) { |ra, skipped_row|
+    # a a pairs of integers for each skip range
+    if ra.empty?
+      # no range yet, start with a range +[n, n]+; e.g., +[1,1]+
+      ra << [ skipped_row, skipped_row ]
+    elsif ra.last.last + 1 == skipped_row
+      # the row number is the next number after the last value in
+      # the last row; make it the last value; e.g., if
+      # skipped_row == 2:
+      #
+      # [[1,1]].last.last + 1 == skipped_row
+      # [[1,1]].last[-1] = skipped_row # => [[1,2]]
+      ra.last[-1] = skipped_row
+    else
+      # the next skipped_row is not in sequence; create a new range
+      # pair; if skipped_row == 6 and ra == [[1,2]], then
+      #
+      # [[1,2]].last.last == 2; then
+      # [[1,2]].last.last != skipped_row; and so do:
+      #
+      # [[1,2]] << [skipped_row, skipped_row] # => [[1,2], [,6,6]]
+      ra << [ skipped_row, skipped_row ]
+    end
+    ra
+  }.map { |pair|
+    # glue each pair together an join those:
+    #
+    # [[1,2], [6,10]] => ['1-2', '6-10'] => '1-2+6-10'
+    pair.uniq.join '-'
+  }.join '+'
+end
+
+def write_outfile csv_slice, csv_comp, start:, stop:, skips:, options:
+  ext              = File.extname options[:outfile]
+  base_path        = options[:outfile].chomp(ext)
+  skips_string     = build_skips_string skips
+
+  output_slice     = "#{base_path}-slice-#{start}-#{stop}#{ext}"
+  output_comp      = "#{base_path}-complement-#{skips_string}#{ext}"
+
+  FileUtils.mv csv_comp.path, output_comp
+  FileUtils.mv csv_slice.path, output_slice
+
+  return output_slice, output_comp
+end
+
+if options[:split]
+  csv_slice = CSV.open Tempfile.new, 'w', headers: true
+  csv_comp  = CSV.open Tempfile.new, 'w', headers: true
+  
+  skips = [] # array to hold the list of all skipped row numbers
+  CSV.parse(input, headers: true).each_with_index do |row, index|
+    csv_slice << row.headers  if index == 0
+    csv_comp << row.headers   if index == 0
+    row_num = index + 1
+
+    # pick the CSV to write to; slice or complement
+    if (start..stop).include? row_num
+      csv = csv_slice
+    else
+      csv = csv_comp
+      skips << row_num
+    end
+    csv << row.to_h
+  end
+  output_slice, output_comp = write_outfile(
+    csv_slice, csv_comp, start: start, stop: stop,
+    skips: skips, options: options
+  )
+  puts "Wrote: #{output_slice}, #{output_comp}"
+else
+  output = get_csv_output options
+
+  CSV output, headers: true do |csv|
+    CSV.parse(input, headers: true).each_with_index do |row,index|
+      csv << row.headers if index == 0
+      csv << row.to_h if (start..stop).include? index + 1
+    end
   end
 end
