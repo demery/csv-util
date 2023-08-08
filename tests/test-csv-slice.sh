@@ -72,4 +72,16 @@ test_find_matching_row_number_by_regex() {
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
+test_split_input_csv() {
+  expected_split_file="/tmp/$$-slice-2-3.csv"
+  expected_comps_file="/tmp/$$-complements-1+4-6.csv"
+  ${CSV_SLICE} --slice 2..3 --split --outfile /tmp/$$.csv <(echo "${input_csv}") >/dev/null
+  assert "test -e ${expected_split_file}"
+  assert "test -e ${expected_comps_file}"
+}
+
+teardown_suite() {
+  rm -f $$*.csv
+}
+
 CSV_SLICE="eval ../exe/csv-slice"
