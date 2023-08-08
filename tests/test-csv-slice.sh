@@ -73,11 +73,33 @@ test_find_matching_row_number_by_regex() {
 }
 
 test_split_input_csv() {
-  expected_split_file="/tmp/$$-slice-2-3.csv"
-  expected_comps_file="/tmp/$$-complements-1+4-6.csv"
+  slice_file="/tmp/$$-slice-2-3.csv"
+  comps_file="/tmp/$$-complements-1+4-6.csv"
   ${CSV_SLICE} --slice 2..3 --split --outfile /tmp/$$.csv <(echo "${input_csv}") >/dev/null
-  assert "test -e ${expected_split_file}"
-  assert "test -e ${expected_comps_file}"
+  assert "test -e ${slice_file}"
+  assert "test -e ${comps_file}"
+}
+
+test_split_slice_csv_has_expected_content() {
+  expected='first_col,second_col,third_col
+egg,fig,grape
+elbow,foot,gut'
+
+  slice_file="/tmp/$$-slice-2-3.csv"
+  ${CSV_SLICE} --slice 2..3 --split --outfile /tmp/$$.csv <(echo "${input_csv}") >/dev/null
+  assert_equals "${expected}" "$(cat ${slice_file})"
+}
+
+test_split_complements_csv_has_expected_content() {
+  expected='first_col,second_col,third_col
+easel,floor,girder
+eager,fickle,giddy
+steak,fig,cheese
+cucumber,fig,omelet'
+
+  comps_file="/tmp/$$-complements-1+4-6.csv"
+  ${CSV_SLICE} --slice 2..3 --split --outfile /tmp/$$.csv <(echo "${input_csv}") >/dev/null
+  assert_equals "${expected}" "$(cat ${comps_file})"
 }
 
 teardown_suite() {
