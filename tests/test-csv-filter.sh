@@ -8,6 +8,10 @@ eager,fickle,giddy
 steak,fig,cheese
 cucumber,fig,omelet'
 
+
+#####################################################################
+# Filtering by text
+#####################################################################
 test_filter_by_text() {
   expected='first_col,second_col,third_col
 egg,fig,grape
@@ -30,6 +34,34 @@ eager,fickle,giddy'
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
+test_filter_by_case_insensitive_text() {
+  assert false
+}
+
+test_filter_reject_by_case_insensitive_text() {
+  assert false
+}
+
+test_filter_by_empty_string_text() {
+  assert false
+}
+
+test_filte_reject_by_empty_string_text() {
+  assert false
+}
+
+test_filter_by_text_when_column_value_is_empty_string() {
+  assert false
+}
+
+test_filter_reject_by_text_when_column_value_is_empty_string() {
+  assert false
+}
+
+
+#####################################################################
+# Filtering by regular expression
+#####################################################################
 test_filter_by_regex() {
   expected='first_col,second_col,third_col
 easel,floor,girder
@@ -52,7 +84,34 @@ cucumber,fig,omelet'
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
+test_filter_by_case_insensitive_regex() {
+  assert false
+}
 
+test_filter_reject_by_case_insensitive_regex() {
+  assert false
+}
+
+test_filter_by_empty_regex() {
+  assert false
+}
+
+test_filter_reject_by_empty_regex() {
+  assert false
+}
+
+test_filter_by_regex_when_column_value_is_empty_string() {
+  assert false
+}
+
+test_filter_reject_by_regex_when_column_value_is_empty_string() {
+  assert false
+}
+
+
+#####################################################################
+# Test piping to csv-filter
+#####################################################################
 test_pipe_to_csv_filter() {
     expected='first_col,second_col,third_col
 easel,floor,girder

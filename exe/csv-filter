@@ -21,16 +21,33 @@ end
 # Either regex or text must be provided, but not both.
 #
 def valid_match? options
-  options[:regex_string].nil? ^ options[:text].nil?
+  options[:pattern].nil? ^ options[:text].nil?
+end
+
+def matches_text? value, options
+  normal_val = options[:insensitive] ? value.downcase : value
+  test_text  = options[:insensitive] ? options[:text].to_s.downcase : options[:text].to_s
+
+  return normal_val != test_text if options[:reject]
+
+  normal_val == test_text
+end
+
+def matches_pattern? value, options
+  regex = %r{#{options[:pattern]}}
+  regex += 'i' if options[:insensitive]
+
+  return value !~ regex if options[:reject]
+
+  value =~ regex
 end
 
 def match? row, options
-  value = row[options[:column]]
-  return value != options[:text]  if options[:text] && options[:reject]
-  return value == options[:text]  if options[:text]
-  return value !~ options[:regex] if options[:reject]
+  value = row[options[:column]].to_s
 
-  value =~ options[:regex]
+  return matches_text? value, options if options[:text]
+
+  matches_pattern? value, options
 end
 
 def process_first_row row:, options:, csv:
@@ -62,8 +79,8 @@ EOF
   end
 
   opts.on("-r", "--regex PATTERN",
-          "Ruby regular expression; e.g., 'trade.*cards'") do |regex_string|
-    options[:regex_string] = regex_string
+          "Ruby regular expression; e.g., 'trade.*cards'") do |regex|
+    options[:pattern] = regex
   end
 
   opts.on("-j", "--reject", "Reject all matching rows") do
@@ -83,7 +100,7 @@ EOF
   end
 
   c_help = %Q{List encodings and quit (#{Encoding.list.size} encodings)}
-  opts.on "-c", "--list-encodings", c_help do
+  opts.on "--list-encodings", c_help do
     puts Encoding.list
     exit
   end
@@ -114,10 +131,6 @@ end
 encoding = options[:encoding] || DEFAULT_ENCODING
 abort 'Provide either a regex or text to match' unless valid_match? options
 abort 'Specify a column to match' unless options[:column]
-
-if options[:regex_string]
-  options[:regex] = Regexp.new options[:regex_string], options[:insensitive]
-end
 
 
 first_row = true
