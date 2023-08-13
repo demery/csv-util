@@ -72,7 +72,7 @@ end.parse!
 # Select input -- a file argument or a pipe
 ##
 # See if there are any arguments left; otherwise, read from stdin
-if $stdin.tty?
+if $stdin.tty? || ARGV.any?
   csv_file = ARGV.shift
   abort "Please provide a CSV file" unless csv_file
   abort "Can't find CSV file" unless File.exist? csv_file

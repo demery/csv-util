@@ -152,8 +152,9 @@ EOF
 end
 
 parser.parse!
+# STDERR.puts "===== Is $stdin.tty? #{$stdin.tty?}"
 
-if $stdin.tty?
+if ARGV.any? || $stdin.tty?
   csv_file = ARGV.shift
   abort "Please provide a CSV file" unless csv_file
   abort "Can't find CSV file" unless File.exist? csv_file
@@ -162,7 +163,6 @@ else
   input = $stdin
 end
 
-# get the unique headers
 
 def get_csv_output opts
   return File.open opts[:outfile], 'w' if opts[:outfile]
@@ -213,8 +213,7 @@ end
 
 
 if options[:split]
-  # suddenly it stopped working to do CSV.open Tempfile.new, 'w', ...
-  # 🤷🏻
+  # 🤷🏻 suddenly it stopped working to do CSV.open Tempfile.new, 'w', ...
   slice_tmp = Tempfile.new
   comp_tmp = Tempfile.new
   csv_slice = CSV.open slice_tmp, 'w', headers: true
