@@ -78,7 +78,7 @@ end
 
 parser.parse!
 
-input = $stdin.tty? ? ARGV.dup : ARGF
+input = ($stdin.tty? || ARGV.any?) ? ARGV.dup : ARGF
 
 csvs = input.map(&:chomp).map { |f|
   # handle fifos
