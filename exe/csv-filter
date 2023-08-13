@@ -34,8 +34,12 @@ def matches_text? value, options
 end
 
 def matches_pattern? value, options
-  regex = %r{#{options[:pattern]}}
-  regex += 'i' if options[:insensitive]
+  # Regexp options are bit values (0,1,2,4); 0 => No options
+  # https://ruby-doc.org/3.2.2/Regexp.html#class-Regexp-label-Options
+  regexp_opts = 0
+  regexp_opts |= Regexp::IGNORECASE if options[:insensitive] # bitwise or/=
+
+  regex = Regexp.new options[:pattern], regexp_opts
 
   return value !~ regex if options[:reject]
 
