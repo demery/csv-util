@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    csv-util (0.5.0)
+    csv-util (0.6a.0)
 
 GEM
   remote: https://rubygems.org/
