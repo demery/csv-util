@@ -31,7 +31,7 @@ OptionParser.new do |opts|
     options[:out_col_sep] = sep
   end
 
-  opts.on '-x', '--input-sep SEPARATOR', 'Input column separator' do |sep|
+  opts.on '-x', '--input-sep SEPARATOR', 'CSVReader column separator' do |sep|
     options[:in_col_sep] = sep
   end
 
