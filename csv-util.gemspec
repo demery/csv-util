@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lib/csvutil/version'
+require_relative 'lib/csv_util/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'csv-util'
@@ -30,11 +30,13 @@ Gem::Specification.new do |spec|
   spec.bindir = 'exe'
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+  spec.add_runtime_dependency 'activesupport', '~> 5.0'
 
   # Uncomment to register a new dependency of your gem
   spec.add_development_dependency 'pry', '~> 0.14.1'
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency 'upennlib-rubocop', '~> 1.0'
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

@@ -1,0 +1,4 @@
+module Util
+  def list_headers: -> Array[String]
+
+end
