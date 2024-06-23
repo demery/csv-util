@@ -5,7 +5,7 @@ module CSVUtil
 
     ##
     # Print the headers in the input to stdout.
-    # @param input [IO,String,StringIO] Input stream
+    # @param input [IO,String,StringIO] CSVReader stream
     # @param col_sep [String] Column separator
     # @return [void]
     def print_headers input, col_sep: ','
@@ -15,7 +15,7 @@ module CSVUtil
     end
 
     ##
-    # @param input [IO,String,StringIO] Input stream
+    # @param input [IO,String,StringIO] CSVReader stream
     # @param col_sep [String] Column separator
     # @return [Array<String>] Array of headers
     def get_headers input, col_sep: ','
