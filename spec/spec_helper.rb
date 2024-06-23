@@ -16,3 +16,5 @@ RSpec.configure do |config|
 
   config.include Helpers
 end
+
+require_relative 'support/util_examples'

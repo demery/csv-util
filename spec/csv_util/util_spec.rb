@@ -33,7 +33,7 @@ RSpec.describe CSVUtil::Util do
 
     let(:expected) { %w[first_col second_col third_col] }
     it 'lists the headers' do
-      expect(subject.list_headers(csv_file)).to eq expected
+      expect(subject.get_headers(csv_file)).to eq expected
     end
   end
 end
