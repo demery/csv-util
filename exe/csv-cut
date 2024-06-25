@@ -11,6 +11,25 @@ require_relative '../lib/csvutil'
 CMD = File.basename __FILE__
 
 ###
+# Methods
+###
+
+def list_headers row
+  puts "Headers in input:"
+  puts "---"
+  puts row.to_h.keys
+end
+
+def process_first_row row:, options:, csv:
+  if options[:list_headers]
+    list_headers row
+    exit
+  end
+  abort "Please provide a column name" unless options[:columns]
+  csv << options[:columns] if options[:headers]
+end
+
+###
 # Parse options
 ###
 

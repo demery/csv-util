@@ -134,6 +134,12 @@ EOF
     options[:slice_spec] = slice_spec
   end
 
+  # slice
+  random_help = "Select a COUNT rows at random"
+  opts.on '-R', '--random COUNT', random_help, Integer do |random|
+    options[:random] = random
+  end
+
   # split
   split_help = "Output two CSVs: one of sliced rows and one of the remainder"
   opts.on '-p', '--split', split_help do
@@ -193,6 +199,25 @@ if (query = options[:row_query])
     $stderr.puts "WARNING: No row found matching #{options[:row_query]}"
     exit 1
   end
+end
+
+if options[:random]
+  data = CSV.parse input, headers: true
+  rows = Set.new
+  while rows.size < options[:random] && rows.size < data.size do
+    rows << rand(data.size)
+  end
+  selections = rows.to_a.sort
+  output = get_csv_output options
+
+  CSV output, headers: true do |csv|
+    data.each_with_index do |row, index|
+      csv << row.headers if index == 0
+      csv << row.to_h if selections.include? index + 1
+    end
+  end
+
+  exit
 end
 
 stop = nil
