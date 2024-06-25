@@ -109,7 +109,7 @@ end
 
 data = OpenStruct.new options
 data.csv_file_name = nil
-data.last_start = nil
+data.last_start = 0
 data.last_index = nil
 data.last_written = nil
 tmp_csv = nil
