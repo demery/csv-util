@@ -84,6 +84,23 @@ RSpec.describe CSVUtil::Split do
         expect(File.read(File.join(outdir, filename))).to eq(contents)
       end
     end
+
+    context 'lines not divisible by split size' do
+      let(:subject) { CSVUtil::Split.new(**options.merge(split_size: 4)) }
+      it 'creates the correct number of files' do
+        expect { subject.process csv_file }.to change { Dir.entries(outdir).count }.by(2)
+      end
+
+      let(:expected_files) {
+        %w[output00001.csv output00002.csv]
+      }
+      it 'creates the expected files names' do
+        subject.process csv_file
+        expect(
+          Dir.glob("#{outdir}/*.csv").map { |f| File.basename(f) }
+        ).to match expected_files
+      end
+    end
   end
 
 end

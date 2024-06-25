@@ -4,6 +4,7 @@ require 'fileutils'
 require 'tempfile'
 
 module CSVUtil
+  # Split the input CSV into multiple files
   class Split
     include CSVUtil::Util
     include CSVUtil::CSVReader
@@ -32,8 +33,9 @@ module CSVUtil
     end
 
     def build_file_name count
-      index = format "%0#{width}d", count / split_size
-      File.join outdir, "#{prefix}#{index}.csv"
+      index = count % split_size == 0 ? count / split_size : count / split_size + 1
+      base = format "%s%0#{width}d.csv", prefix, index
+      File.join outdir, base
     end
 
     def output_csv_options
