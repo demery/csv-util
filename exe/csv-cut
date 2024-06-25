@@ -20,7 +20,7 @@ def list_headers row
   puts row.to_h.keys
 end
 
-def proces_first_row row:, options:, csv:
+def process_first_row row:, options:, csv:
   if options[:list_headers]
     list_headers row
     exit
@@ -89,12 +89,10 @@ first_row = true
 CSV col_sep: options[:separator] do |csv|
   CSV.parse input, headers: true do |row|
     if first_row
-      proces_first_row row: row, options: options, csv: csv
+      process_first_row row: row, options: options, csv: csv
       first_row = false
     end
 
     csv << options[:columns].map { |column| row[column] }
   end
 end
-
-
