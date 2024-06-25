@@ -1,4 +1,4 @@
-require  'csv'
+require 'csv'
 
 module CSVUtil
   # Extract the contents of a column or columns from the input csv.
