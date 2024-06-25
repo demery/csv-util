@@ -5,6 +5,7 @@ module CSVUtil
   class Cut
     include CSVUtil::Util
     include CSVUtil::CSVReader
+    include CSVUtil::CSVWriter
 
     attr_reader :columns, :out_col_sep,
                 :output_headers, :list_headers
@@ -20,11 +21,11 @@ module CSVUtil
     # @return [CSVUtil::Cut]
     def initialize columns, options: {}
       @columns        = columns
-      @out_col_sep    = options[:out_col_sep] || DEFAULT_SEPARATOR
+      @out_col_sep    = options[:out_col_sep] || CSVUtil::DEFAULT_SEPARATOR
       @output_headers = options[:output_headers]
       @list_headers   = options[:list_headers]
-      @encoding       = options[:encoding] || DEFAULT_ENCODING
-      @in_col_sep     = options[:in_col_sep] || DEFAULT_SEPARATOR
+      @encoding       = options[:encoding] || CSVUtil::DEFAULT_ENCODING
+      @in_col_sep     = options[:in_col_sep] || CSVUtil::DEFAULT_SEPARATOR
     end
 
     ##
@@ -37,7 +38,7 @@ module CSVUtil
         return
       end
 
-      CSV col_sep: out_col_sep do |csv|
+      write do |csv|
         first_row = true
         read input do |row|
           if first_row
@@ -50,7 +51,8 @@ module CSVUtil
     end
 
     ##
-    # Validate that columns have been specified and there columns are in the input CSV
+    # Validate that columns have been specified and the columns are in the input CSV
+    #
     # @param row [CSV::Row] First row of the CSV
     # @return [void]
     # @raise [CSVUtil::Error] if no columns have been specified

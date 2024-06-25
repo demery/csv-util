@@ -4,6 +4,7 @@ module CSVUtil
   class Filter
     include CSVUtil::Util
     include CSVUtil::CSVReader
+    include CSVUtil::CSVWriter
 
     attr_reader :column, :pattern, :reject_matching, :insensitive,
                 :substring, :text, :out_col_sep
@@ -20,9 +21,9 @@ module CSVUtil
     # @option options [String] :pattern (nil) the regex to match
     def initialize column, options = {}
       @column          = column
-      @encoding        = options[:encoding] || DEFAULT_ENCODING
-      @in_col_sep      = options[:in_col_sep] || DEFAULT_SEPARATOR
-      @out_col_sep     = options[:out_col_sep] || DEFAULT_SEPARATOR
+      @encoding        = options[:encoding] || CSVUtil::DEFAULT_ENCODING
+      @in_col_sep      = options[:in_col_sep] || CSVUtil::DEFAULT_SEPARATOR
+      @out_col_sep     = options[:out_col_sep] || CSVUtil::DEFAULT_SEPARATOR
       @pattern         = options[:pattern]
       @reject_matching = options[:reject_matching]
       @insensitive     = options[:insensitive]
@@ -66,7 +67,7 @@ module CSVUtil
 
     def filter input
       first_row = true
-      CSV headers: true, col_sep: out_col_sep do |csv|
+      write do |csv|
         read(input) do |row|
           if first_row
             validate_column row

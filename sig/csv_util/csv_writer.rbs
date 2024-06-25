@@ -1,0 +1,6 @@
+module CSVUtil
+  module CSVWriter
+    @encoding: String
+    @out_col_sep: String
+  end
+end

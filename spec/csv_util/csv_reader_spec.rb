@@ -25,7 +25,6 @@ RSpec.describe CSVUtil::CSVReader do
 
   let(:subject) { ReaderTest.new }
 
-
   context '#read' do
     it 'reads a CSV' do
       expect { |b|

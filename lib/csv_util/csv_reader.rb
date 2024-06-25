@@ -4,9 +4,6 @@ module CSVUtil
   ## Read the CSV input and yield each row
   module CSVReader
 
-    DEFAULT_ENCODING  = 'utf-8'
-    DEFAULT_SEPARATOR = ','
-
     ##
     # Read the CSV input and yield each row
     #
@@ -26,12 +23,12 @@ module CSVUtil
     ##
     # @return [String] column separator (usually a comma)
     def in_col_sep
-      @in_col_sep ||= DEFAULT_SEPARATOR
+      @in_col_sep ||= CSVUtil::DEFAULT_SEPARATOR
     end
 
     # @return [String] the input CSV encoding; defaults to 'utf-8'
     def encoding
-      @encoding ||= DEFAULT_ENCODING
+      @encoding ||= CSVUtil::DEFAULT_ENCODING
     end
 
     ##

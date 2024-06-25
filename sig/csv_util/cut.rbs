@@ -1,5 +1,7 @@
 module CSVUtil
   class Cut
+    @encoding: string
+
     attr_reader columns: Array[String]
 
     attr_reader in_col_sep: String
