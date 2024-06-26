@@ -27,6 +27,10 @@ RSpec.describe CSVUtil::Split do
   let(:options) { { outdir: outdir, split_size: size } }
   let(:subject) { CSVUtil::Split.new(**options) }
 
+  after :each do
+    FileUtils.rm_rf "#{outdir}/*.csv"
+  end
+
   context '#process' do
     it 'processes a file' do
       expect { subject.process csv_file }.not_to raise_error
