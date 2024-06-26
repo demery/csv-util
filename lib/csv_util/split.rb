@@ -33,8 +33,8 @@ module CSVUtil
     end
 
     def build_file_name count
-      index = count % split_size == 0 ? count / split_size : count / split_size + 1
-      base = format "%s%0#{width}d.csv", prefix, index
+      index = (count % split_size).zero? ? count / split_size : count / split_size + 1
+      base = format "#{prefix}%0#{width}d.csv", index
       File.join outdir, base
     end
 
@@ -47,7 +47,7 @@ module CSVUtil
       csv = nil
       tmp_csv = nil
       read input do |row|
-        if count % split_size == 0
+        if (count % split_size).zero?
           if csv.present?
             csv.close
             csv_file_name = build_file_name count
