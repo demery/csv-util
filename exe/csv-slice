@@ -17,34 +17,32 @@ def print_version
   exit
 end
 
-=begin
-For an array integers of for each row skipped by the slice operation,
-output the complement string for a sliced CSV.
-
-A sliced CSV has in its name the slice spec for the range of rows sliced from a
-source CSV; e.g., for a slice spc of +3..5+, the span string is +3-5+.
-The complement string is the span string for all the rows that
-<b>aren't</b> in the sliced CSV; for example, for a source CSV of 10
-rows with a slice spec of +3..5+, the 'complents' CSV would have
-rows 1-2 and 6-10 of the source CSV and the span string would be
-
-  1-2+6-10
-
-@example
-  build_skips_string([1,2,6,7,8,9,10])  # => 1-2+6-10
-
-So, in use:
-
-@example Given a file +source.csv+ with ten rows:
-  $ csv-slice --split --spec 3..5 --outfile output.csv source.csv
-  Wrote: output-slice-3-5.csv, output-complement-1-2+6-10
-
-@param [Array<Integer>] skipped_rows an array integers of all skipped
-  row numbers; e.g., [1, 2, 6, 7, 8, 9, 10]: rows 1 to 2 and 6 to 10
-  were skipped
-@return [String] the complement string for the provided pairs; e.g.,
-  +1-2\+6-10+; rows 1 to 2 and 6 to 10 were skipped
-=end
+# For an array of integers for each row skipped by the slice operation,
+# output the complement string for a sliced CSV.
+#
+# A sliced CSV has in its name the slice spec for the range of rows sliced from a
+# source CSV; e.g., for a slice spc of +3..5+, the span string is +3-5+.
+# The complement string is the span string for all the rows that
+# <b>aren't</b> in the sliced CSV; for example, for a source CSV of 10
+# rows with a slice spec of +3..5+, the 'complements' CSV would have
+# rows 1-2 and 6-10 of the source CSV and the span string would be
+#
+#   1-2+6-10
+#
+# @example
+#   build_skips_string([1,2,6,7,8,9,10])  # => 1-2+6-10
+#
+# So, in use:
+#
+# @example Given a file +source.csv+ with ten rows:
+#   $ csv-slice --split --spec 3..5 --outfile output.csv source.csv
+#   Wrote: output-slice-3-5.csv, output-complement-1-2+6-10
+#
+# @param [Array<Integer>] skipped_rows an array integers of all skipped
+#   row numbers; e.g., [1, 2, 6, 7, 8, 9, 10]: rows 1 to 2 and 6 to 10
+#   were skipped
+# @return [String] the complement string for the provided pairs; e.g.,
+#   +1-2\+6-10+; rows 1 to 2 and 6 to 10 were skipped
 def build_skips_string skipped_rows
   # scan the input array and create range pairs for sequential skips;
   # for example, in the following:
@@ -57,7 +55,7 @@ def build_skips_string skipped_rows
   #
   #  [1, 2, 5, 5, 7, 10] # 1-2, 5-5, and 7-10
   #
-  # This can be turn into an array of arrays of pairs that can then
+  # This can be turned into an array of arrays of pairs that can then
   # be mapped into a 'skips string':
   #
   #   [1, 2, 5, 5, 7, 10].each_slice(2).map { |pair|
@@ -90,9 +88,9 @@ def write_outfile output_csv, output_path
   output_path
 end
 
-def build_file_name output_file, type:, span_string:
-  ext       = File.extname output_file
-  base_path = output_file.chomp ext
+def build_file_name outfile, type:, span_string:
+  ext       = File.extname outfile
+  base_path = outfile.chomp ext
 
   "#{base_path}-#{type}-#{span_string}#{ext}"
 end
@@ -233,9 +231,6 @@ when %r{\A\d+\.{2}\d+\z}
 else
   raise "Invalid slice specification: '#{spec}'"
 end
-
-
-
 
 if options[:split]
   # 🤷🏻 suddenly it stopped working to do CSV.open Tempfile.new, 'w', ...

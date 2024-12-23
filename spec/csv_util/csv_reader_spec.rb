@@ -26,12 +26,13 @@ RSpec.describe CSVUtil::CSVReader do
   let(:subject) { ReaderTest.new }
 
   context '#read' do
+  context 'when the input is a StringIO' do
     it 'reads a CSV' do
       expect { |b|
         subject.read csv_file, &b
       }.not_to raise_error
     end
-
+  end
     it 'yields a CSV::Row' do
       expect { |b|
         subject.read csv_file, &b

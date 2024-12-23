@@ -9,6 +9,7 @@ require_relative 'csv_util/util'
 require_relative 'csv_util/cut'
 require_relative 'csv_util/filter'
 require_relative 'csv_util/split'
+require_relative 'csv_util/slice'
 
 module CSVUtil
   include CSVUtil::Constants

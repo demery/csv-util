@@ -12,12 +12,40 @@ module CSVUtil
     def read input, &block
       raise CSVUtil::Error, "Invalid encoding #{encoding}" unless valid_encoding? encoding
 
-      options = {
+      # options = {
+      #   col_sep: in_col_sep,
+      #   encoding: "#{encoding}:utf-8",
+      #   headers: true
+      # }
+      csv = csv_from input
+
+      csv.each &block
+      csv.close
+      # CSV.parse input, **options, &block
+    end
+
+    def csv_from input, **options
+      opts = {
         col_sep: in_col_sep,
         encoding: "#{encoding}:utf-8",
         headers: true
-      }
-      CSV.parse input, **options, &block
+      }.merge options
+
+      if input.is_a? StringIO
+        CSV.new input, **opts
+      elsif input.kind_of? IO
+        CSV.new input, **opts
+      elsif input.kind_of? String
+        CSV.new input, **opts
+      elsif input.any? || $stdin.tty?
+        csv_file = input.shift
+
+        abort "Please provide a CSV file" unless csv_file
+        abort "Can't find CSV file" unless File.exist? csv_file
+        CSV.new csv_file, **opts
+      else
+        CSV.new $stdin, **opts
+      end
     end
 
     ##
