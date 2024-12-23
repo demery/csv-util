@@ -17,12 +17,6 @@ def print_version
   exit
 end
 
-def build_file_name data
-  start = sprintf "%0#{data.width}d", data.last_start + 1
-  stop  = sprintf "%0#{data.width}d", data.last_index + 1
-  File.join data.out_dir, "#{data.prefix}-#{start}-#{stop}.csv"
-end
-
 DEFAULT_SPLIT_SIZE = 100
 DEFAULT_PREFIX     = 'output'
 DEFAULT_OUTDIR     = '.'
@@ -54,21 +48,21 @@ EOF
   end
 
   # prefix
-  prefix_help = "Specify an output filename prefix" \
+  prefix_help = 'Specify an output filename prefix' \
     " (default: '#{DEFAULT_PREFIX}')"
   opts.on '-p', '--prefix PREFIX', prefix_help do |prefix|
     options[:prefix] = prefix
   end
 
   # size
-  size_help = "The number of records per split" \
+  size_help = 'The number of records per split' \
     " [default: '#{DEFAULT_SPLIT_SIZE}']"
   opts.on '-s', '--size INTEGER', size_help, Integer do |split_size|
     options[:split_size] = split_size
   end
 
   # width
-  width_help = "The number of spaces to zero-pad the indices" \
+  width_help = 'The number of spaces to zero-pad the indices' \
     " [default: #{DEFAULT_WIDTH}]"
   opts.on '-w', '--width INTEGER', width_help, Integer do |width|
     options[:width] = width
@@ -77,24 +71,23 @@ EOF
   # outdir
   out_help = "Specify an output directory (default: '#{DEFAULT_OUTDIR}')"
   opts.on '-o', '--output-dir DIR', out_help do |output_dir|
-    options[:out_dir] = output_dir
+    options[:outdir] = output_dir
   end
   help_help = <<~EOF
     Prints this help
 
   EOF
-  opts.on("-h", "--help", help_help) do
+  opts.on('-h', '--help', help_help) do
     puts opts
     exit
   end
 end
 
 parser.parse!
-# STDERR.puts "===== Is $stdin.tty? #{$stdin.tty?}"
 
 if ARGV.any? || $stdin.tty?
   csv_file = ARGV.shift
-  abort "Please provide a CSV file" unless csv_file
+  abort 'Please provide a CSV file' unless csv_file
   abort "Can't find CSV file" unless File.exist? csv_file
   input = open csv_file
 else
@@ -107,34 +100,5 @@ def get_csv_output opts
   STDOUT.dup
 end
 
-data = OpenStruct.new options
-data.csv_file_name = nil
-data.last_start = 0
-data.last_index = nil
-data.last_written = nil
-tmp_csv = nil
-csv = nil
-
-CSV.parse(input, headers: true).each_with_index do |row,index|
-  if index % data.split_size == 0
-    if csv
-      csv.close
-      csv_file_name = build_file_name data
-      FileUtils.mv tmp_csv.path, csv_file_name
-      data.last_written = index
-    end
-    data.last_start = index
-    # data.last_index = index
-    tmp_csv    = Tempfile.new
-    csv        = CSV.open(tmp_csv, 'w+', headers: true)
-    csv << row.headers
-  end
-  csv << row.to_h
-  data.last_index = index
-end
-
-puts "last_written #{data.last_written}; last_index: #{data.last_index}"
-csv_file_name = build_file_name data
-csv.close
-FileUtils.mv tmp_csv.path, csv_file_name
-tmp_csv.close
+split = CSVUtil::Split.new options
+split.process input

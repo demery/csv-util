@@ -1,0 +1,16 @@
+module CSVUtil
+  class Split
+    DEFAULT_INDEX_WIDTH: Integer
+
+    DEFAULT_OUTDIR: String
+    DEFAULT_PREFIX: String
+    DEFAULT_SPLIT_SIZE: Integer
+
+    @encoding: String
+
+    attr_reader outdir: String
+    attr_reader prefix: String
+    attr_reader split_size: Integer
+    attr_reader width: Integer
+  end
+end

@@ -1,0 +1,15 @@
+module CSVUtil
+  class Filter
+    @encoding: String
+
+    @in_col_sep: String
+
+    attr_reader column: String
+    attr_reader insensitive: bool
+    attr_reader out_col_sep: String
+    attr_reader pattern: String
+    attr_reader reject_matching: bool
+    attr_reader substring: bool
+    attr_reader text: String
+  end
+end

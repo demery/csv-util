@@ -1,0 +1,17 @@
+module CSVUtil
+  module CSVReader
+    DEFAULT_ENCODING: String
+
+    DEFAULT_SEPARATOR: String
+
+    @encoding: String
+    @in_col_sep: String
+
+    def in_col_sep: -> String
+    def encoding: -> String
+
+    def read: -> void
+
+    def valid_encoding?: -> bool
+  end
+end

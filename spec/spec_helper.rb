@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'csvutil'
+require_relative '../lib/csvutil'
+require_relative 'support/helpers'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,6 +13,8 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.include Helpers
 end
 
-
+require_relative 'support/util_examples'

@@ -1,0 +1,15 @@
+module CSVUtil
+  class Cut
+    @encoding: string
+
+    attr_reader columns: Array[String]
+
+    attr_reader in_col_sep: String
+    attr_reader list_headers: bool
+    attr_reader out_col_sep: String
+    attr_reader output_headers: bool
+    attr_reader print_headers: bool
+
+    def process: -> untyped
+  end
+end

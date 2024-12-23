@@ -34,7 +34,7 @@ end
 ###
 
 options = {}
-options[:separator] = ','
+options[:out_col_sep] = ','
 
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)} -c col1,col2,col3 CSV_FILE "
@@ -46,8 +46,12 @@ OptionParser.new do |opts|
     exit
   end
 
-  opts.on '-s', '--separator SEP', 'Separator for mulitple columns' do |sep|
-    options[:separator] = sep
+  opts.on '-s', '--output-sep SEPARATOR', 'Output column separator' do |sep|
+    options[:out_col_sep] = sep
+  end
+
+  opts.on '-x', '--input-sep SEPARATOR', 'CSVReader column separator' do |sep|
+    options[:in_col_sep] = sep
   end
 
   opts.on '-l' , '--list-headers', 'List the headers in CSV and quit' do
@@ -58,8 +62,8 @@ OptionParser.new do |opts|
     options[:columns] = columns.split ','
   end
 
-  opts.on '-d', '--headers', 'Print column headers' do
-    options[:headers] = true
+  opts.on '-d', '--headers', 'Output the cut column headers' do
+    options[:output_headers] = true
   end
 
   opts.on '-h', '--help', 'Prints this help' do
@@ -74,25 +78,12 @@ end.parse!
 # See if there are any arguments left; otherwise, read from stdin
 if $stdin.tty? || ARGV.any?
   csv_file = ARGV.shift
-  abort "Please provide a CSV file" unless csv_file
+  abort 'Please provide a CSV file' unless csv_file
   abort "Can't find CSV file" unless File.exist? csv_file
   input = File.open csv_file
 else
   input = $stdin
 end
 
-
-###
-# Process the data
-###
-first_row = true
-CSV col_sep: options[:separator] do |csv|
-  CSV.parse input, headers: true do |row|
-    if first_row
-      process_first_row row: row, options: options, csv: csv
-      first_row = false
-    end
-
-    csv << options[:columns].map { |column| row[column] }
-  end
-end
+csv_cut = CSVUtil::Cut.new options[:columns], options: options
+csv_cut.process input

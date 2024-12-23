@@ -1,0 +1,7 @@
+module CSVUtil
+  class Slice
+    def process: -> void
+
+    def range: -> Range
+  end
+end
