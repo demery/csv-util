@@ -26,16 +26,31 @@ RSpec.describe CSVUtil::Cut do
   }
 
   let(:columns) { %w[first_col second_col] }
-  let(:subject) { CSVUtil::Cut.new columns }
+  let(:subject) { CSVUtil::Cut.new csv_file, columns }
 
-  context 'Util methods' do
+  context 'implementations' do
     let(:expected_headers) { %w[first_col second_col third_col] }
+
     it_behaves_like 'a Util implementation'
+
+    let(:expected) {
+      <<~EOF
+      easel,floor
+      egg,fig
+      elbow,foot
+      eager,fickle
+      steak,fig
+      cucumber,fig
+      EOF
+    }
+
+    it_behaves_like 'a command implementation'
   end
+
 
   context '.new' do
     it 'creates a CSVUtil::Cut instance' do
-      expect(described_class.new columns).to be_a CSVUtil::Cut
+      expect(described_class.new csv_file, columns).to be_a CSVUtil::Cut
     end
   end
 
@@ -43,7 +58,7 @@ RSpec.describe CSVUtil::Cut do
     it 'processes a file' do
       suppress_output do
         expect {
-          subject.process csv_file.read
+          subject.process
         }.not_to raise_error
       end
     end
@@ -61,31 +76,31 @@ RSpec.describe CSVUtil::Cut do
 
     it 'has the expected output' do
       expect {
-        subject.process csv_file
+        subject.process
       }.to output(expected_output).to_stdout
     end
 
     it 'does not print headers' do
       expect {
-        subject.process csv_file
+        subject.process
       }.not_to output(/first_col/).to_stdout
     end
 
     it 'prints headers if requested' do
       options = { output_headers: true }
-      cut = CSVUtil::Cut.new columns, options: options
+      cut = CSVUtil::Cut.new csv_file, columns, options: options
       expect {
-        cut.process csv_file
+        cut.process
       }.to output(/first_col/).to_stdout
     end
 
     context 'with out_col_sep' do
       let(:subject) {
-        CSVUtil::Cut.new columns, options: { out_col_sep: "\t" }
+        CSVUtil::Cut.new csv_file, columns, options: { out_col_sep: "\t" }
       }
       it 'uses the correct output separator' do
         expect {
-          subject.process csv_file
+          subject.process
         }.to output(/easel\tfloor/).to_stdout
       end
     end
@@ -110,11 +125,11 @@ RSpec.describe CSVUtil::Cut do
         sio
       }
       let(:subject) {
-        CSVUtil::Cut.new columns, options: { in_col_sep: "\t", columns: %w[first_col second_col] }
+        CSVUtil::Cut.new csv_file, columns, options: { in_col_sep: "\t", columns: %w[first_col second_col] }
       }
       it 'uses the correct input separator' do
         expect {
-          subject.process csv_file.read
+          subject.process
         }.to output(/easel,floor/).to_stdout
       end
     end

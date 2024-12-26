@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe CSVUtil::Split do
+  let(:subject) { CSVUtil::Split.new csv_file, **options }
+
   let(:csv) {
     <<~EOF
       first_col,second_col,third_col
@@ -25,26 +27,31 @@ RSpec.describe CSVUtil::Split do
   let(:size) { 2 }
   let(:outdir) { Dir.mktmpdir }
   let(:options) { { outdir: outdir, split_size: size } }
-  let(:subject) { CSVUtil::Split.new(**options) }
 
   after :each do
     FileUtils.rm_rf "#{outdir}/*.csv"
   end
 
+  context 'implementations' do
+    skips = %i[output]
+    let(:expected) { nil }
+    it_behaves_like 'a command implementation', skips
+  end
+
   context '#process' do
     it 'processes a file' do
-      expect { subject.process csv_file }.not_to raise_error
+      expect { subject.process }.not_to raise_error
     end
 
     it 'creates a file for every two rows' do
-      expect { subject.process csv_file }.to change { Dir.entries(outdir).count }.by(3)
+      expect { subject.process }.to change { Dir.entries(outdir).count }.by(3)
     end
 
     let(:expected_files) {
       %w[output00001.csv output00002.csv output00003.csv]
     }
     it 'creates files with the correct names' do
-      subject.process csv_file
+      subject.process
       expect(
         Dir.glob("#{outdir}/*.csv").map { |f| File.basename(f) }
       ).to match expected_files
@@ -83,23 +90,23 @@ RSpec.describe CSVUtil::Split do
     }
 
     it 'writes the expected file contents' do
-      subject.process csv_file
+      subject.process
       expected_contents.each do |filename, contents|
         expect(File.read(File.join(outdir, filename))).to eq(contents)
       end
     end
 
     context 'lines not divisible by split size' do
-      let(:subject) { CSVUtil::Split.new(**options.merge(split_size: 4)) }
+      let(:subject) { CSVUtil::Split.new(csv_file, **options.merge(split_size: 4)) }
       it 'creates the correct number of files' do
-        expect { subject.process csv_file }.to change { Dir.entries(outdir).count }.by(2)
+        expect { subject.process }.to change { Dir.entries(outdir).count }.by(2)
       end
 
       let(:expected_files) {
         %w[output00001.csv output00002.csv]
       }
       it 'creates the expected files names' do
-        subject.process csv_file
+        subject.process
         expect(
           Dir.glob("#{outdir}/*.csv").map { |f| File.basename(f) }
         ).to match expected_files

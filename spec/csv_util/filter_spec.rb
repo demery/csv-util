@@ -25,11 +25,23 @@ RSpec.describe CSVUtil::Filter do
 
   let(:column) { 'second_col' }
 
-  let(:subject) { described_class.new column }
+  let(:subject) { described_class.new csv_file, column, **options }
+
+  context 'implementations' do
+    let(:options) { { text: 'fig' } }
+    let(:expected) {
+      <<~EOF
+            first_col,second_col,third_col
+            steak,fig,cheese
+            cucumber,fig,omelet
+      EOF
+    }
+    it_behaves_like 'a command implementation'
+  end
 
   context '.new' do
     it 'creates a CSVUtil::Filter instance' do
-      expect(described_class.new column).to be_a CSVUtil::Filter
+      expect(described_class.new csv_file, column).to be_a CSVUtil::Filter
     end
   end
 
@@ -47,9 +59,9 @@ RSpec.describe CSVUtil::Filter do
         let(:options) {
           { text: 'fig' }
         }
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows with a given string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -71,10 +83,10 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
 
         it 'outputs rows not containing the text' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -95,9 +107,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that match regardless of case' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
 
       end
@@ -119,10 +131,10 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new 'second_col', **options }
+        let(:subject) { described_class.new csv_file, 'second_col', **options }
 
         it 'outputs rows not containing the text' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -141,9 +153,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that only match the given string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -167,9 +179,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that do not match the given string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
     end
@@ -191,9 +203,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that match a regex' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -214,9 +226,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that do not match a regex' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -238,9 +250,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that match a given string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -261,9 +273,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that do not match the regular expression' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -282,10 +294,10 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, pattern: 'FI.*', insensitive: false }
+        let(:subject) { described_class.new csv_file, column, pattern: 'FI.*', insensitive: false }
 
         it 'outputs rows that match a given string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -309,10 +321,10 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
 
         it 'outputs rows that do not match the regular expression' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
     end
@@ -335,9 +347,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that contain a string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -359,9 +371,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that do not contain the string' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -384,9 +396,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that contain the substring' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
 
@@ -408,9 +420,9 @@ RSpec.describe CSVUtil::Filter do
           }
         }
 
-        let(:subject) { described_class.new column, **options }
+        let(:subject) { described_class.new csv_file, column, **options }
         it 'outputs rows that do not contain the substring' do
-          expect { subject.filter csv_file }.to output(expected).to_stdout
+          expect { subject.process }.to output(expected).to_stdout
         end
       end
     end

@@ -85,5 +85,5 @@ else
   input = $stdin
 end
 
-csv_cut = CSVUtil::Cut.new options[:columns], options: options
-csv_cut.process input
+csv_cut = CSVUtil::Cut.new input, options[:columns], options: options
+csv_cut.process

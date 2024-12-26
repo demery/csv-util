@@ -18,3 +18,4 @@ RSpec.configure do |config|
 end
 
 require_relative 'support/util_examples'
+require_relative 'support/command_examples'

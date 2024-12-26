@@ -100,5 +100,5 @@ def get_csv_output opts
   STDOUT.dup
 end
 
-split = CSVUtil::Split.new options
-split.process input
+split = CSVUtil::Split.new input, options
+split.process

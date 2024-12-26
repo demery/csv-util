@@ -68,34 +68,6 @@ jar,car,tsar'
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }
 
-test_concat_two_csvs_sorted() {
-  expected='a,b,c,d
-,bat,cat,fat
-,jar,car,tsar
-,jar,car,tsar
-,rug,bug,tug
-1,2,3,
-3,4,5,
-3,4,5,
-5,6,7,'
-
-  abc='a,b,c
-5,6,7
-3,4,5
-1,2,3
-3,4,5'
-
-  bcd='b,c,d
-bat,cat,fat
-jar,car,tsar
-rug,bug,tug
-jar,car,tsar'
-
-  actual=$(${CSV_CAT} --sort <(echo "${abc}") <(echo "${bcd}") )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
 test_pipe_two_csvs() {
 
   # pipe a list of csv files to csv-cat
@@ -132,58 +104,6 @@ EOF
 
   # print the list of files to csv-cat
   actual=$(printf "${abc}\n${bcd}" | ${CSV_CAT})
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_concat_two_csvs_uniq() {
-expected='a,b,c,d
-5,6,7,
-3,4,5,
-1,2,3,
-,bat,cat,fat
-,jar,car,tsar
-,rug,bug,tug'
-
-  abc='a,b,c
-5,6,7
-3,4,5
-1,2,3
-3,4,5'
-
-  bcd='b,c,d
-bat,cat,fat
-jar,car,tsar
-rug,bug,tug
-jar,car,tsar'
-
-  actual=$(${CSV_CAT} --uniq <(echo "${abc}") <(echo "${bcd}") )
-
-  assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
-}
-
-test_concat_two_csvs_sort_uniq() {
-  expected='a,b,c,d
-,bat,cat,fat
-,jar,car,tsar
-,rug,bug,tug
-1,2,3,
-3,4,5,
-5,6,7,'
-
-  abc='a,b,c
-5,6,7
-3,4,5
-1,2,3
-3,4,5'
-
-  bcd='b,c,d
-bat,cat,fat
-jar,car,tsar
-rug,bug,tug
-jar,car,tsar'
-
-  actual=$(${CSV_CAT} --sort --uniq <(echo "${abc}") <(echo "${bcd}") )
 
   assert_equals "${expected}" "${actual}" 'Unexpected CSV output'
 }

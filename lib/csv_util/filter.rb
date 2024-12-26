@@ -1,34 +1,34 @@
 # frozen_string_literal: true
 
 module CSVUtil
-  class Filter
-    include CSVUtil::Util
-    include CSVUtil::CSVReader
-    include CSVUtil::CSVWriter
+  class Filter < CSVUtil::Command
 
-    attr_reader :column, :pattern, :reject_matching, :insensitive,
-                :substring, :text, :out_col_sep
+    attr_reader :column
+    attr_reader :input
+
+    attr_reader :insensitive
+    attr_reader :pattern
+    attr_reader :reject_matching
+    attr_reader :substring
+    attr_reader :text
 
     # Initialize the filter object
     # @param column [String] the column to filter on
     # @param options [Hash] the options
-    # @option options [String] :in_col_sep (',') the column separator
-    # @option options [String] :out_col_sep (',') the output column separator
-    # @option options [String] :encoding ('utf-8') the input encoding
     # @option options [String] :text (nil) the text to match
     # @option options [Boolean] :reject_matching (nil) whether to return non matching lines
     # @option options [Boolean] :substring (nil) whether the text is a substring
     # @option options [String] :pattern (nil) the regex to match
-    def initialize column, options = {}
+    def initialize input, column, options = {}
+      @input          = input
       @column          = column
-      @encoding        = options[:encoding] || CSVUtil::DEFAULT_ENCODING
-      @in_col_sep      = options[:in_col_sep] || CSVUtil::DEFAULT_SEPARATOR
-      @out_col_sep     = options[:out_col_sep] || CSVUtil::DEFAULT_SEPARATOR
-      @pattern         = options[:pattern]
       @reject_matching = options[:reject_matching]
+      @pattern         = options[:pattern]
       @insensitive     = options[:insensitive]
       @substring       = options[:substring]
       @text            = options[:text]
+
+      super options
     end
 
     def match? row
@@ -65,7 +65,8 @@ module CSVUtil
       value =~ Regexp.new(pattern, flags)
     end
 
-    def filter input
+    # Process the input CSV, writing the result to the output
+    def process
       first_row = true
       write do |csv|
         read(input) do |row|

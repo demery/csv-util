@@ -5,12 +5,15 @@ require 'tempfile'
 
 module CSVUtil
   # Split the input CSV into multiple files
-  class Split
-    include CSVUtil::Util
-    include CSVUtil::CSVReader
-    include CSVUtil::CSVWriter
+  class Split < Command
 
-    attr_reader :split_size, :prefix, :outdir, :width
+
+    attr_reader :input
+    
+    attr_reader :split_size
+    attr_reader :prefix
+    attr_reader :outdir
+    attr_reader :width
 
     DEFAULT_INDEX_WIDTH = 5
     DEFAULT_SPLIT_SIZE = 100
@@ -24,12 +27,14 @@ module CSVUtil
     # @option [:prefix] [String] output filename prefix (default: 'output')
     # @option [:out_dir] [String] output directory (default: '.')
     # @option [:width] [Integer] width of index, left-padded with zeros in output file names (default: 5)
-    def initialize options={}
+    def initialize input, options={}
+      @input      = input
       @split_size = options[:split_size] || DEFAULT_SPLIT_SIZE
-      @encoding   = options[:encoding] || CSVUtil::DEFAULT_ENCODING
       @prefix     = options[:prefix] || DEFAULT_PREFIX
       @outdir     = options[:outdir] || DEFAULT_OUTDIR
       @width      = options[:width] || DEFAULT_INDEX_WIDTH
+
+      super options
     end
 
     def build_file_name count
@@ -42,7 +47,7 @@ module CSVUtil
       { encoding: encoding, headers: true }
     end
 
-    def process input
+    def process
       count = 0
       csv = nil
       tmp_csv = nil

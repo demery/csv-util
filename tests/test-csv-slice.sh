@@ -102,6 +102,15 @@ cucumber,fig,omelet'
   assert_equals "${expected}" "$(cat ${comps_file})"
 }
 
+test_random_slice() {
+    expected='3'
+
+    # print line 3 and the rest of the CSV
+    actual=$( echo "${input_csv}" |  ${CSV_SLICE} --random 2 )
+    rows=$(echo "${actual}" | wc -l)
+    assert_equals ${expected} ${rows} 'Unexpected number of rows'
+}
+
 teardown_suite() {
   rm -f $$*.csv
 }
