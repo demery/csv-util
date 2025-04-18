@@ -1,13 +1,14 @@
 # frozen_string_literal: true
+# encoding: utf-8
 
 module CSVUtil
-  # Utitlty methods for writing CSVs.
+  # Utility methods for writing CSVs.
   #
   # Including classes should have the following instance variables:
   #
   # +@outfile+:: the output file name, if outputting to a file; overrides +@output+
   # +@output+:: the output stream (if +@outfile+ is not set); defaults to $stdout
-  # +@encoding+:: the output CSV encoding; defaults to 'utf-8'
+  # +@output_encoding+:: the output CSV encoding; defaults to 'utf-8'
   # +@out_col_sep+:: the output column separator; defaults to ','
   module CSVWriter
 
@@ -19,7 +20,11 @@ module CSVUtil
         headers: true
       }
 
-      CSV output, **options, &block
+      if file_output?
+        CSV.open output, 'wb', **options, &block
+      else
+        CSV output, **options, &block
+      end
     end
 
     # @return [String] column separator (usually a comma)
@@ -29,17 +34,17 @@ module CSVUtil
 
     # @return [String] the input CSV encoding; defaults to 'utf-8'
     def encoding
-      @encoding ||= CSVUtil::DEFAULT_ENCODING
+      @output_encoding ||= CSVUtil::DEFAULT_ENCODING
+    end
+
+    def file_output?
+      @outfile.present?
     end
 
     def output
-      return @output if @output
+      # return @output if @output
 
-      if @outfile
-        @output = File.open @outfile, 'w'
-      else
-        @output = $stdout
-      end
+      @output ||= @outfile ? File.open(@outfile, 'w') : $stdout
     end
 
   end

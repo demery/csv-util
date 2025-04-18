@@ -5,7 +5,7 @@ module CSVUtil
   #
   # Including classes should have the following instance variables:
   #
-  # +@encoding+:: the input CSV encoding; defaults to 'utf-8'
+  # +@input_encoding+:: the input CSV encoding; defaults to 'utf-8'
   # +@in_col_sep+:: the input column separator; defaults to ','
   module CSVReader
 
@@ -76,7 +76,7 @@ module CSVUtil
 
     # @return [String] the input CSV encoding; defaults to 'utf-8'
     def encoding
-      @encoding ||= CSVUtil::DEFAULT_ENCODING
+      @input_encoding ||= CSVUtil::DEFAULT_ENCODING
     end
 
     ##
