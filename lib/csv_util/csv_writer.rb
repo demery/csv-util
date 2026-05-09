@@ -13,15 +13,13 @@ module CSVUtil
   module CSVWriter
 
     def write &block
-
       options = {
         col_sep: out_col_sep,
-        encoding: encoding.to_s,
         headers: true
       }
 
       if file_output?
-        CSV.open output, 'wb', **options, &block
+        CSV.open output, 'w', **options, &block
       else
         CSV output, **options, &block
       end
@@ -30,11 +28,6 @@ module CSVUtil
     # @return [String] column separator (usually a comma)
     def out_col_sep
       @out_col_sep ||= CSVUtil::DEFAULT_SEPARATOR
-    end
-
-    # @return [String] the input CSV encoding; defaults to 'utf-8'
-    def encoding
-      @output_encoding ||= CSVUtil::DEFAULT_ENCODING
     end
 
     def file_output?
