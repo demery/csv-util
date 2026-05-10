@@ -67,8 +67,8 @@ module CSVUtil
       when /\A\d+\.{2}\d+\z/
         start, stop = slice_spec.split('..').map { |i| Integer i }
         @range = (start..stop)
-      when /\A\d+\.\.\z/
-        @range = eval slice_spec
+      when /\A(\d+)\.\.\z/
+        @range = (Integer($1)..)
       else
         raise ArgumentError,"Invalid slice specification: '#{slice_spec}'"
       end
