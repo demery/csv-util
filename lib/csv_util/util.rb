@@ -19,10 +19,13 @@ module CSVUtil
     # @param col_sep [String] Column separator
     # @return [Array<String>] Array of headers
     def get_headers input, col_sep: ','
-      csv_data = CSV.parse(input, col_sep: col_sep)
-      return [] if csv_data.blank?
-
-      csv_data.first || []
+      if input.respond_to? :gets
+        line = input.gets
+        return [] unless line
+        CSV.parse_line(line, col_sep: col_sep) || []
+      else
+        File.open(input) { |f| get_headers(f, col_sep: col_sep) }
+      end
     end
   end
 end

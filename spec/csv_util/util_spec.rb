@@ -36,4 +36,17 @@ RSpec.describe CSVUtil::Util do
       expect(subject.get_headers(csv_file)).to eq expected
     end
   end
+
+  context '#get_headers' do
+    it 'returns [] for empty input' do
+      expect(subject.get_headers(StringIO.new(''))).to eq []
+    end
+
+    it 'reads only the first row' do
+      large_csv = "a,b,c\n" + ("x,y,z\n" * 1_000)
+      sio = StringIO.new(large_csv)
+      subject.get_headers(sio)
+      expect(sio.pos).to be < large_csv.length / 2
+    end
+  end
 end
