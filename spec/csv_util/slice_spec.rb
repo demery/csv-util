@@ -98,4 +98,21 @@ RSpec.describe CSVUtil::Slice do
       end
     end
   end
+
+  context '#process with reject: true' do
+    let(:options) { { slice_spec: '2..3', reject: true } }
+    let(:expected) {
+      <<~CSV
+        first_col,second_col,third_col
+        easel,floor,girder
+        eager,fickle,giddy
+        steak,fig,cheese
+        cucumber,fig,omelet
+      CSV
+    }
+
+    it 'outputs rows not in the slice' do
+      expect { subject.process }.to output(expected).to_stdout
+    end
+  end
 end
