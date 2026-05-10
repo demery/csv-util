@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+require 'csv'
+require 'optparse'
+require_relative '../lib/csvutil'
+
+CMD = File.basename __FILE__
+
+def print_version
+  puts "#{CMD} #{CSVUtil::VERSION}"
+  exit
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = <<~EOF
+    Usage: #{CMD} [options] CSV
+
+    Output a random sample of rows from the CSV.
+
+    NB: Assumes CSV has headers.
+
+  EOF
+
+  opts.on '-v', '--version', "Print #{CMD} and quit" do
+    print_version
+  end
+
+  opts.on '-n', '--count N', Integer, "Number of rows to sample (default: 1)" do |n|
+    options[:count] = n
+  end
+
+  opts.on '--seed N', Integer, "Random seed for reproducible output" do |n|
+    options[:seed] = n
+  end
+
+  opts.on '-o', '--outfile OUTFILE', "Output filename (default: stdout)" do |outfile|
+    options[:outfile] = outfile
+  end
+
+  opts.on '-h', '--help', "Print this help\n\n" do
+    puts opts
+    exit
+  end
+end.parse!
+
+if ARGV.any? || $stdin.tty?
+  csv_file = ARGV.shift
+  abort "Please provide a CSV file" unless csv_file
+  abort "Can't find CSV file" unless File.exist? csv_file
+  input = File.open csv_file
+else
+  input = $stdin
+end
+
+CSVUtil::Sample.new(input, **options).process
