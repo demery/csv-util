@@ -1,38 +1,31 @@
-require 'csv'
 
 module CSVUtil
   # Extract the contents of a column or columns from the input csv.
-  class Cut
-    include CSVUtil::Util
-    include CSVUtil::CSVReader
-    include CSVUtil::CSVWriter
+  class Cut < Command
 
-    attr_reader :columns, :out_col_sep,
-                :output_headers, :list_headers
+    attr_reader :columns
+    attr_reader :input
+    attr_reader :output_headers
 
+    # See {CSVUtil::Command#initialize} for options
+    #
+    # @param input [IO,String,StringIO] CSVReader stream
     # @param columns [Array<String>] Columns to extract
     # @param options [Hash] Options
-    # @option [:in_col_sep] [String] input column separator (default: ',')
-    # @option [:out_col_sep] [String] output column separator (default: ',')
     # @option [:output_headers] [Boolean] print headers in the output (default: false)
-    # @option [:list_headers] [Boolean] list headers in the input and quit
-    # @option [:encoding] [String] input encoding (default: 'utf-8')
-    # @option [:in_col_sep] [String] input column separator (default: ',')
     # @return [CSVUtil::Cut]
-    def initialize columns, options: {}
+    def initialize input, columns, options: {}
+      @input          = input
       @columns        = columns
-      @out_col_sep    = options[:out_col_sep] || CSVUtil::DEFAULT_SEPARATOR
       @output_headers = options[:output_headers]
-      @list_headers   = options[:list_headers]
-      @encoding       = options[:encoding] || CSVUtil::DEFAULT_ENCODING
-      @in_col_sep     = options[:in_col_sep] || CSVUtil::DEFAULT_SEPARATOR
+      super options
     end
 
     ##
     # Process the input CSV either by printing the headers or extracting
-    # the specified columns {#columns}
+    # the specified columns +columns+ and writing them to the output
     # @param [IO,String,StringIO] input
-    def process input
+    def process
       if list_headers
         print_headers input, col_sep: in_col_sep
         return

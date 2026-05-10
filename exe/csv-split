@@ -31,17 +31,22 @@ options = {
 
 parser = OptionParser.new do |opts|
 
-  opts.banner = <<EOF
+  opts.banner = <<BANNER
 Usage: #{File.basename __FILE__} [options] CSV CSV [...]
 
-Return a new version of the CSV with only the specified row
+Split the CSV into multiple CSV files of the same number of rows, by 
+default each CSV will have 100 rows.
 
 NB: Assumes CSV has headers.
 
-EOF
+For example, given an input CSV of 150 rows:
+
+csv-split input.csv  # => output00001-00100.csv, output00101-00150.csv
+
+BANNER
 
   # version
-  version_help = "Print #{CMD} and quit"
+  version_help = "Print #{CMD} version and quit"
   opts.on '-v', '--version', version_help do
     print_version
     exit
@@ -100,5 +105,5 @@ def get_csv_output opts
   STDOUT.dup
 end
 
-split = CSVUtil::Split.new options
-split.process input
+split = CSVUtil::Split.new input, options
+split.process

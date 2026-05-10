@@ -5,6 +5,10 @@ require 'spec_helper'
 class TestWriter
   include CSVUtil::CSVWriter
 
+  def initialize **options
+    @outfile = options[:outfile]
+  end
+
   def process rows
     write do |csv|
       rows.each_with_index { |row,ndx|
@@ -16,7 +20,7 @@ class TestWriter
 end
 
 RSpec.describe CSVUtil::CSVWriter do
-
+  let (:subject) { TestWriter.new }
   let(:rows) {
     [
       { a: 1, b: 2, c: 3 },
@@ -34,11 +38,9 @@ RSpec.describe CSVUtil::CSVWriter do
 
   context '#write' do
     it 'writes a CSV' do
-      expect {
-        TestWriter.new.process rows
-      }.to output(expected).to_stdout
+      expect { subject.process rows }.to output(expected).to_stdout
     end
-  end
 
+  end
 
 end

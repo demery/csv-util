@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe CSVUtil::Slice do
+  let(:subject) { CSVUtil::Slice.new csv_file, **options }
 
   let(:csv) {
     <<~EOF
@@ -23,17 +24,29 @@ RSpec.describe CSVUtil::Slice do
     sio
   }
 
-  let(:subject) { CSVUtil::Slice.new }
+  let(:options) { {} }
+
+  context 'implementations' do
+    let(:expected) {
+      <<~EOF
+      first_col,second_col,third_col
+      egg,FIG,grape
+      elbow,foot,gut
+      EOF
+    }
+    let(:options) { { slice_spec: '2..3' } }
+    it_behaves_like 'a command implementation'
+  end
 
   context '.new' do
     it 'creates a CSVUtil::Slice instance' do
-      expect(CSVUtil::Slice.new).to be_a(CSVUtil::Slice)
+      expect(CSVUtil::Slice.new csv_file, **options).to be_a(CSVUtil::Slice)
     end
   end
 
   context '.range' do
     let(:slice_spec) { '3..5' }
-    let(:subject) { CSVUtil::Slice.new(slice_spec: slice_spec) }
+    let(:subject) { CSVUtil::Slice.new(csv_file,slice_spec: slice_spec) }
     it 'returns a Range' do
       expect(subject.range).to be_a(Range)
     end

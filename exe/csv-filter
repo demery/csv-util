@@ -107,5 +107,5 @@ end
 abort 'Provide either a regex or text to match' unless valid_match? options
 abort 'Specify a column to match' unless options[:column]
 
-filter = CSVUtil::Filter.new options[:column], **options
-filter.filter input
+filter = CSVUtil::Filter.new input, options[:column], **options
+filter.process
